@@ -28,12 +28,12 @@ void VectorAngles(const Vector3& forward, Vector3& angles)
 	}
 	else
 	{
-		yaw = (atan2f(forward.y, forward.x) * 180 / M_PI);
+		yaw = (atan2f(forward.y, forward.x) * 180 / M_PI_F);
 		if (yaw < 0)
 			yaw += 360;
 
 		tmp = sqrtf(forward.x * forward.x + forward.y * forward.y);
-		pitch = (atan2f(-forward.z, tmp) * 180 / M_PI);
+		pitch = (atan2f(-forward.z, tmp) * 180.f / M_PI_F);
 		if (pitch < 0)
 			pitch += 360;
 	}
@@ -43,33 +43,6 @@ void VectorAngles(const Vector3& forward, Vector3& angles)
 	angles.z = 0;
 }
 
-	void SinCos(float radians, float* sine, float* cosine);
-	void AngleVectors(const Vector3& angles, Vector3* forward = nullptr, Vector3* right = nullptr, Vector3* up = nullptr);
-
-	float DotProduct(const float* a, const float* b);
-
-	inline float NormalizePitch(float pitch)
-	{
-		while (pitch > 89.f)
-			pitch -= 180.f;
-		while (pitch < -89.f)
-			pitch += 180.f;
-
-		return pitch;
-	}
-
-	inline float NormalizeYaw(float yaw)
-	{
-		if (yaw > 180)
-			yaw -= (round(yaw / 360) * 360.f);
-		else if (yaw < -180)
-			yaw += (round(yaw / 360) * -360.f);
-
-		return yaw;
-	}
-
-
-	inline float GetYawDelta(float yaw1, float yaw2)
-	{
-		return fabs(NormalizeYaw(yaw1 - yaw2));
-	}
+bool InRange(int a, int min, int max) {
+	return (a <= max && a >= min);
+}

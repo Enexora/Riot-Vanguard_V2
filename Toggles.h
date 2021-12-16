@@ -9,8 +9,7 @@ extern bool bBhop = 0; // bhop
 extern bool bEsp = 0; // esp
 extern bool bTP = 0; // third person
 extern bool bBT = 0; // backtrack
-
-
+bool bMenuOpen = 0;
 
 void toggle(bool& a, int k) {
     if (GetAsyncKeyState(k) & 1) {

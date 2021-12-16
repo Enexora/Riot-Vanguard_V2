@@ -458,6 +458,21 @@ public:
 		using original_fn = void(__thiscall*)(void*, const wchar_t* text, int length, int drawType);
 		return (*(original_fn**)this)[28](this, text, length, drawType = 0);
 	}
+	void UnlockCursor()
+	{
+		using original_fn = void(__thiscall*)(void*);
+		return (*(original_fn**)this)[66](this);
+	}
+	void LockCursor() 
+	{
+		using original_fn = void(__thiscall*)(void*);
+		return (*(original_fn**)this)[67](this);
+	}
+	void SurfaceGetCursorPos(int& x, int& y) 
+	{
+		using original_fn = void(__thiscall*)(void*, int&, int&);
+		return (*(original_fn**)this)[96](this, x, y);
+	}
 	enum ETextureFormat
 	{
 		eTextureFormat_RGBA,
@@ -498,6 +513,9 @@ public:
 		FONTFLAG_BITMAP = 0x800,        // compiled bitmap font - no fallbacks
 	};
 };
+
+using tLockCursor = void(__fastcall*)(void*, void*);
+tLockCursor fLockCursor;
 
 class IEngineVGui {
 	void Paint(PaintMode_t mode) {

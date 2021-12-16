@@ -13,7 +13,6 @@ QAngle prevAngles = { 0,0,0 };
 float fovAimbot = 15.f;
 float aayaw = 0;
 bool shootaimbot = 0;
-int trollEnt = 0;
 bool flip = false;
 float lastTime;
 
@@ -51,6 +50,7 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
     ClientState = *(DWORD*)(engine + dwClientState);
     if (!EngineClient->IsInGame()) return 0;
     static bool shotLast = 1;
+    static int trollEnt = 0;
     localPlayer = *(DWORD*)(client + dwLocalPlayer);
     static btRecord backtrack;
     static int btTick = 0;
@@ -139,6 +139,9 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
     else {
         *SendPacket = 1;
     }
+    if (bMenuOpen && (cmd->buttons & IN_ATTACK)) {
+        cmd->buttons &= ~IN_ATTACK;
+    }
     if (cmd->buttons & IN_ATTACK || cmd->buttons & IN_ATTACK2 || cmd->buttons & IN_USE) {
         cmd->viewangles.pitch = clamp89(ViewAngles.pitch);
         cmd->viewangles.yaw = clamp180(ViewAngles.yaw);
@@ -223,13 +226,23 @@ void drawText(vgui::HFont font, int x, int y, const wchar_t* text, vgui::Color c
 
 void fontInit(vgui::HFont& font, const char* fontname, bool& toggle) {
     font = surface->sCreateFont();
-    surface->SetFontGlyphSet(font, fontname, 24, 1400, 0, 0, surface->FONTFLAG_DROPSHADOW | surface->FONTFLAG_OUTLINE);
+    surface->SetFontGlyphSet(font, fontname, 24, 400, 0, 0, surface->FONTFLAG_DROPSHADOW | surface->FONTFLAG_OUTLINE);
     toggle = 1;
+}
+
+void __fastcall hkLockCursor(void* ecx, void* edx) {
+    if (bMenuOpen) {
+        surface->UnlockCursor();
+    }
+    else
+    {
+        fLockCursor(ecx,edx);
+    }
 }
 
 void __fastcall hkPaint(void* ecx, void* edx, PaintMode_t mode) {
     static bool bInit = 0;
-    if (bInit == 0) fontInit(Tahoma, "Script", bInit);
+    if (bInit == 0) fontInit(Tahoma, "Tahoma", bInit);
     int screenWidth;
     int screenHeight;
     EngineClient->GetScreenSize(screenWidth, screenHeight);

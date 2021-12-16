@@ -15,9 +15,12 @@ DWORD WINAPI bhop(HMODULE hModule) {
     SendPacket = (byte*)(engine + dwbSendPackets);
     VirtualProtect(SendPacket, sizeof(SendPacket), PAGE_EXECUTE_READWRITE, 0);
     VirtualProtect((void*)vtable, 0x400, PAGE_EXECUTE_READWRITE, &ulOldProtect[1]);
+    VirtualProtect(*(void**)surface, 0xA00, PAGE_EXECUTE_READWRITE, &ulOldProtect[4]);
     fCreateMove = (tCreateMove)*(DWORD*)(vtable + 24*sizeof(void*));
     fPaint = (tPaint)*(DWORD*)((*(DWORD*)engineVGui) + (14 * sizeof(void*)));
     fOverrideView = (tOverrideView)*(DWORD*)(vtable + 18*sizeof(void*));
+    fLockCursor = (tLockCursor)*(DWORD*)((*(DWORD*)surface) + 67 * sizeof(void*));
+    *(DWORD*)((*(DWORD*)surface) + 67 * sizeof(void*)) = (DWORD)&hkLockCursor;
     *(DWORD*)((*(DWORD*)engineVGui) + (14 * sizeof(void*))) = (DWORD)&hkPaint;
     *(DWORD*)(vtable + 24*sizeof(void*)) = (DWORD)&hkCreateMove;
     *(DWORD*)(vtable + 18*sizeof(void*)) = (DWORD)&hkOverrideView;
@@ -73,6 +76,7 @@ DWORD WINAPI bhop(HMODULE hModule) {
     toggleAll();
     *SendPacket = true;
     *(DWORD*)((*(DWORD*)engineVGui) + (14 * sizeof(void*))) = (DWORD)fPaint;
+    *(DWORD*)((*(DWORD*)surface) + 67 * sizeof(void*)) = (DWORD)fLockCursor;
     *(DWORD*)(vtable + 24 * sizeof(void*)) = (DWORD)fCreateMove;
     *(DWORD*)(vtable + 18 * sizeof(void*)) = (DWORD)fOverrideView;
     FreeLibraryAndExitThread(hModule, 0);
