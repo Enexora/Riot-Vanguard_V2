@@ -147,7 +147,7 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
         if (wepEntity != NULL) {
             if ((*(float*)(wepEntity + m_flNextPrimaryAttack)) <= (float)*(int*)(localPlayer + m_nTickBase) * perTick) {
                 if (bAA) {
-                    if (cmd->tickCount - btTick > 23) {
+                    if (cmd->tickCount - btTick > 30) {
                         btTick = (int)((entsim + lerp + netchan->GetLatency(FLOW_OUTGOING)) / perTick);
                         btMagnitude = backtrack.magnitude;
                         btEntPos = backtrack.position;
