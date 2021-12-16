@@ -10,9 +10,7 @@ DWORD* pVTableFnc = 0;
 QAngle ViewAngles;
 QAngle aimbotAngles = { 0,0,0 };
 QAngle prevAngles = { 0,0,0 };
-float fovAimbot = 15.f;
-float aayaw = 0;
-bool shootaimbot = 0;
+float fovAimbot = 69.f;
 bool flip = false;
 float lastTime;
 
@@ -65,7 +63,7 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
         if (cmd->buttons & IN_JUMP) {
             if (flags == 257 || flags == 263) {
                 cmd->buttons |= IN_JUMP;
-                cmd->tickCount -= 1;
+                if(!*SendPacket) cmd->tickCount += netchan->GetLatency(FLOW_OUTGOING | FLOW_INCOMING)/perTick;
             }
             else
             {
@@ -121,6 +119,7 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
             clamp180(aimbotAngles.yaw);
             if (abs(ViewAngles.yaw - prevAngles.yaw) + abs(ViewAngles.pitch - prevAngles.pitch) > abs(ViewAngles.yaw - aimbotAngles.yaw) + abs(ViewAngles.pitch - aimbotAngles.pitch)) {
                 prevAngles = aimbotAngles;
+                DWORD entWepEntity = *(DWORD*)(client + dwEntityList + ((*(DWORD*)(ent + m_hActiveWeapon) & 0xFFF) - 1) * 0x10);
                 if (bBT) {
                     entsim = *(float*)(ent + m_flSimulationTime);
                     if (btTick) {
@@ -135,7 +134,7 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
         SlowWalk(cmd, forwardSpeed, sideSpeed);
     }
     cmd->buttons |= IN_BULLRUSH;
-    if(bAA && *(int*)(localPlayer + m_iHealth) > 0) { AntiAim::desync::jitter(cmd, prevAngles, flags != 257 && flags != 263); } // ANTIAIM
+    if(bAA && *(int*)(localPlayer + m_iHealth) > 0) { AntiAim::desync::helicopterFast(cmd, prevAngles, flags != 257 && flags != 263); } // ANTIAIM
     else {
         *SendPacket = 1;
     }
@@ -146,7 +145,7 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
         cmd->viewangles.pitch = clamp89(ViewAngles.pitch);
         cmd->viewangles.yaw = clamp180(ViewAngles.yaw);
     }
-    if (GetAsyncKeyState(VK_XBUTTON2) && sqrt(pow((ViewAngles.yaw - prevAngles.yaw), 2) + pow((ViewAngles.pitch - prevAngles.pitch), 2)) <= fovAimbot && bAimbot == true) {
+    if ((GetAsyncKeyState(VK_XBUTTON2)) && sqrt(pow((ViewAngles.yaw - prevAngles.yaw), 2) + pow((ViewAngles.pitch - prevAngles.pitch), 2)) <= fovAimbot && bAimbot == true) {
         if (wepEntity != NULL) {
             if ((*(float*)(wepEntity + m_flNextPrimaryAttack)) <= (float)*(int*)(localPlayer + m_nTickBase) * perTick) {
                 if (bAA) {
@@ -174,23 +173,23 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
                 }
             }
             else if((*(float*)(wepEntity + m_flNextPrimaryAttack)) > (float)*(int*)(localPlayer + m_nTickBase) * perTick) {
-                cmd->buttons &= ~IN_ATTACK;
+                cmd->buttons &= ~IN_ATTACK; // "hide shot" 
             }
         }
     }
     clamp89(cmd->viewangles.pitch);
-    clamp180(cmd->viewangles.yaw);
+    clamp180(cmd->viewangles.yaw); // prevent untrusted 
     prevAngles.yaw = 18000.f;
-    if (*SendPacket == true) {
+    if (*SendPacket == true) { // yes yes. we check if send packet or not and acccordingly setup our player rendering
         cmdView.pitch = cmd->viewangles.pitch;
         cmdView.yaw = cmd->viewangles.yaw;
     }
     if (bTP == true) {
 
-        *(float*)(localPlayer + 0x31E8) = cmdView.pitch;
+        *(float*)(localPlayer + 0x31E8) = cmdView.pitch; // this is to view our player in thirdperson (hardcoded offset cancer)
         *(float*)(localPlayer + 0x31EC) = cmdView.yaw;
     }
-    FixMovement(cmd, EngineClient, ViewAngles);
+    FixMovement(cmd, EngineClient, ViewAngles); // if this is removed we cannot move where we are looking
     return false;
 }
 

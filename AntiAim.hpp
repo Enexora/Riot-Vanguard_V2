@@ -55,7 +55,7 @@ namespace AntiAim {
         }
 
         void helicopter(CUserCmd* cmd, QAngle prevAngles, bool inair) {
-            int chokeCount = 6;
+            int chokeCount = 3;
             if (inair == true) chokeCount = 15;
             Vector3 velocity = *(Vector3*)(localPlayer + m_vecVelocity);
             if (EngineClient->IsVoiceRecording()) chokeCount = 4; 
@@ -81,10 +81,10 @@ namespace AntiAim {
         }
 
         void helicopterFast(CUserCmd* cmd, QAngle prevAngles, bool inair) {
-            int chokeCount = 3;
+            int chokeCount = 5;
             if (inair == true) chokeCount = 15;
             Vector3 velocity = *(Vector3*)(localPlayer + m_vecVelocity);
-            if (EngineClient->IsVoiceRecording() && chokeCount <= 4) chokeCount = 4;
+            if (EngineClient->IsVoiceRecording() && chokeCount > 4) chokeCount = 4;
             *SendPacket = (*(int*)(clientstate_choked_commands + ClientState) >= chokeCount);
             cmd->viewangles.pitch = 89.f;
             static float flstored_yaw;
