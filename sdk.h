@@ -613,7 +613,6 @@ public:
 		using original_fn = int(__thiscall*)(void*);
 		return (*(original_fn**)this)[12](this);
 	}
-
 	float GetLastTimeStamp()
 	{
 		using original_fn = float(__thiscall*)(void*);
