@@ -63,7 +63,7 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
         if (cmd->buttons & IN_JUMP) {
             if (flags == 257 || flags == 263) {
                 cmd->buttons |= IN_JUMP;
-                if(!*SendPacket) cmd->tickCount += netchan->GetLatency(FLOW_OUTGOING | FLOW_INCOMING)/perTick;
+                if(!*SendPacket) cmd->tickCount += lerp/perTick;
             }
             else
             {
@@ -121,7 +121,7 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
                 prevAngles = aimbotAngles;
                 if (bBT) {
                     entsim = *(float*)(ent + m_flSimulationTime);
-                    if (cmd->tickCount % 14 == 0) {
+                    if (cmd->tickCount % 12 == 0) {
                         backtrack.tick = (entsim + lerp + netchan->GetLatency(FLOW_INCOMING | FLOW_OUTGOING)) * perTick;
                         backtrack.magnitude = magnitude;
                         backtrack.position = entHPos;
@@ -134,7 +134,7 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
         SlowWalk(cmd, forwardSpeed, sideSpeed);
     }
     cmd->buttons |= IN_BULLRUSH;
-    if(bAA && *(int*)(localPlayer + m_iHealth) > 0) { AntiAim::desync::helicopterFast(cmd, prevAngles, flags != 257 && flags != 263); } // ANTIAIM
+    if(bAA && *(int*)(localPlayer + m_iHealth) > 0) { AntiAim::desync::jitter(cmd, prevAngles, flags != 257 && flags != 263); } // ANTIAIM
     else {
         *SendPacket = 1;
     }
@@ -187,7 +187,8 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
         *(float*)(localPlayer + 0x31E8) = cmdView.pitch; // this is to view our player in thirdperson (hardcoded offset cancer)
         *(float*)(localPlayer + 0x31EC) = cmdView.yaw;
     }
-    FixMovement(cmd, EngineClient, ViewAngles); // if this is removed we cannot move where we are looking boner
+    FixMovement(cmd, EngineClient, ViewAngles); // if this is removed we cannot move where we are looking
+    cmd->tickCount += lerp / perTick;
     return false;
 }
 

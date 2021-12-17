@@ -24,7 +24,6 @@ namespace AntiAim {
                     cmd->sidemove += cmd->tickCount % 2 ? 1.01 : -1.01;
                 }
             }
-            cmd->tickCount += 1;
         }
 
         void jitter(CUserCmd* cmd, QAngle prevAngles, bool inair) {
@@ -51,7 +50,6 @@ namespace AntiAim {
                     cmd->sidemove += cmd->tickCount % 2 ? 1.01 : -1.01;
                 }
             }
-            cmd->tickCount += 1;
         }
 
         void helicopter(CUserCmd* cmd, QAngle prevAngles, bool inair) {
@@ -77,7 +75,6 @@ namespace AntiAim {
                     cmd->sidemove += cmd->tickCount % 2 ? 1.01 : -1.01;
                 }
             }
-            cmd->tickCount += 1;
         }
 
         void helicopterFast(CUserCmd* cmd, QAngle prevAngles, bool inair) {
@@ -103,7 +100,6 @@ namespace AntiAim {
                     cmd->sidemove += cmd->tickCount % 2 ? 1.01 : -1.01;
                 }
             }
-            cmd->tickCount += 1;
         }
     }
 };
