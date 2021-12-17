@@ -189,7 +189,7 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
         *(float*)(localPlayer + 0x31E8) = cmdView.pitch; // this is to view our player in thirdperson (hardcoded offset cancer)
         *(float*)(localPlayer + 0x31EC) = cmdView.yaw;
     }
-    FixMovement(cmd, EngineClient, ViewAngles); // if this is removed we cannot move where we are looking
+    FixMovement(cmd, EngineClient, ViewAngles); // if this is removed we cannot move where we are looking boner
     return false;
 }
 
