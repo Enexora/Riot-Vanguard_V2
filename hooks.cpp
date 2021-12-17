@@ -178,7 +178,8 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
     clamp89(cmd->viewangles.pitch);
     clamp180(cmd->viewangles.yaw); // prevent untrusted 
     prevAngles.yaw = 18000.f;
-    if (*SendPacket == true) { // yes yes. we check if send packet or not and acccordingly setup our player rendering
+    if (cmd->buttons & IN_ATTACK) *SendPacket = 1;
+    if (SendPacket) { // yes yes. we check if send packet or not and acccordingly setup our player rendering
         cmdView.pitch = cmd->viewangles.pitch;
         cmdView.yaw = cmd->viewangles.yaw;
     }
