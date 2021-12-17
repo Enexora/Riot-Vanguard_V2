@@ -2,7 +2,7 @@
 #include "Includes.h"
 #include "menu.h"
 #define PI 3.141592653f
-#define lerp 1/32
+#define lerp 0.03125f
 
 
 DWORD* pVTableBase = 0;
@@ -119,10 +119,10 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
             clamp180(aimbotAngles.yaw);
             if (abs(ViewAngles.yaw - prevAngles.yaw) + abs(ViewAngles.pitch - prevAngles.pitch) > abs(ViewAngles.yaw - aimbotAngles.yaw) + abs(ViewAngles.pitch - aimbotAngles.pitch)) {
                 prevAngles = aimbotAngles;
-                DWORD entWepEntity = *(DWORD*)(client + dwEntityList + ((*(DWORD*)(ent + m_hActiveWeapon) & 0xFFF) - 1) * 0x10);
                 if (bBT) {
                     entsim = *(float*)(ent + m_flSimulationTime);
-                    if (btTick) {
+                    if (cmd->tickCount % 14 == 0) {
+                        backtrack.tick = (entsim + lerp + netchan->GetLatency(FLOW_INCOMING | FLOW_OUTGOING)) * perTick;
                         backtrack.magnitude = magnitude;
                         backtrack.position = entHPos;
                     }
@@ -149,17 +149,15 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
         if (wepEntity != NULL) {
             if ((*(float*)(wepEntity + m_flNextPrimaryAttack)) <= (float)*(int*)(localPlayer + m_nTickBase) * perTick) {
                 if (bAA) {
-                    if (cmd->tickCount - btTick > 30) {
-                        btTick = (int)((entsim + lerp + netchan->GetLatency(FLOW_OUTGOING)) / perTick);
-                        btMagnitude = backtrack.magnitude;
-                        btEntPos = backtrack.position;
-                    }
+                    btTick = backtrack.tick;
+                    btMagnitude = backtrack.magnitude;
+                    btEntPos = backtrack.position;
                     if (!bBT) {
                         cmd->viewangles.pitch = clamp89(prevAngles.pitch);
                         cmd->viewangles.yaw = clamp180(prevAngles.yaw);
                         cmd->buttons |= IN_ATTACK;
                     }
-                    if (bBT && btTick) {
+                    if (bBT) {
                         cmd->tickCount = btTick - 1;
                         cmd->viewangles.pitch = (180.f * (-atan((btEntPos.z - PlayerPos.z) / (btMagnitude))) / PI) - (2.f * punchAngle.pitch);
                         cmd->viewangles.yaw = 180.f * (atan2(btEntPos.y - PlayerPos.y, btEntPos.x - PlayerPos.x)) / PI - (2.f * punchAngle.yaw);
