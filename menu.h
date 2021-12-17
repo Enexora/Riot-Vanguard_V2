@@ -119,7 +119,7 @@ void DrawMenu(int mode)
         if (fov.click() > .1f) {
             gFov = fov.click();
         }
-        drawText(Tahoma, fov.start.x + 105, fov.start.y - 3, std::to_wstring((int)gFov).c_str(), white, 16); // text position is based from top left corner, slightly below it
+        drawText(Tahoma, fov.start.x + 105, fov.start.y - 3, std::to_wstring(gFov).c_str(), white, 16); // text position is based from top left corner, slightly below it
 
 
     }
