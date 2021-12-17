@@ -2,7 +2,7 @@
 #include "Includes.h"
 #include "menu.h"
 #define PI 3.141592653f
-#define lerp 1/32
+#define lerp 0.03125f
 
 
 DWORD* pVTableBase = 0;
@@ -10,7 +10,7 @@ DWORD* pVTableFnc = 0;
 QAngle ViewAngles;
 QAngle aimbotAngles = { 0,0,0 };
 QAngle prevAngles = { 0,0,0 };
-float fovAimbot = 69.f;
+float fovAimbot = 15.f;
 bool flip = false;
 float lastTime;
 
@@ -119,10 +119,10 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
             clamp180(aimbotAngles.yaw);
             if (abs(ViewAngles.yaw - prevAngles.yaw) + abs(ViewAngles.pitch - prevAngles.pitch) > abs(ViewAngles.yaw - aimbotAngles.yaw) + abs(ViewAngles.pitch - aimbotAngles.pitch)) {
                 prevAngles = aimbotAngles;
-                DWORD entWepEntity = *(DWORD*)(client + dwEntityList + ((*(DWORD*)(ent + m_hActiveWeapon) & 0xFFF) - 1) * 0x10);
                 if (bBT) {
                     entsim = *(float*)(ent + m_flSimulationTime);
-                    if (btTick) {
+                    if (cmd->tickCount % 14 == 0) {
+                        backtrack.tick = (entsim + lerp + netchan->GetLatency(FLOW_INCOMING | FLOW_OUTGOING)) * perTick;
                         backtrack.magnitude = magnitude;
                         backtrack.position = entHPos;
                     }
@@ -149,17 +149,15 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
         if (wepEntity != NULL) {
             if ((*(float*)(wepEntity + m_flNextPrimaryAttack)) <= (float)*(int*)(localPlayer + m_nTickBase) * perTick) {
                 if (bAA) {
-                    if (cmd->tickCount - btTick > 30) {
-                        btTick = (int)((entsim + lerp + netchan->GetLatency(FLOW_OUTGOING)) / perTick);
-                        btMagnitude = backtrack.magnitude;
-                        btEntPos = backtrack.position;
-                    }
+                    btTick = backtrack.tick;
+                    btMagnitude = backtrack.magnitude;
+                    btEntPos = backtrack.position;
                     if (!bBT) {
                         cmd->viewangles.pitch = clamp89(prevAngles.pitch);
                         cmd->viewangles.yaw = clamp180(prevAngles.yaw);
                         cmd->buttons |= IN_ATTACK;
                     }
-                    if (bBT && btTick) {
+                    if (bBT) {
                         cmd->tickCount = btTick - 1;
                         cmd->viewangles.pitch = (180.f * (-atan((btEntPos.z - PlayerPos.z) / (btMagnitude))) / PI) - (2.f * punchAngle.pitch);
                         cmd->viewangles.yaw = 180.f * (atan2(btEntPos.y - PlayerPos.y, btEntPos.x - PlayerPos.x)) / PI - (2.f * punchAngle.yaw);
@@ -199,7 +197,7 @@ void __fastcall hkOverrideView(void* ecx, void* edx, CViewSetup* pSetup) {
         fOverrideView(ecx, edx, pSetup);
         return;
     }
-    pSetup->flFOV = 100.f;
+    pSetup->flFOV = gFov;
     QAngle ViewAngles = { 0,0,0 };
     EngineClient->GetViewAngles(ViewAngles);
     if (*(int*)(localPlayer + m_iHealth) <= 0) {
@@ -216,18 +214,7 @@ void __fastcall hkOverrideView(void* ecx, void* edx, CViewSetup* pSetup) {
     fOverrideView(ecx, edx, pSetup);
 }
 
-void drawText(vgui::HFont font, int x, int y, const wchar_t* text, vgui::Color color) {
-    surface->SetTextFont(font);
-    surface->SetTextColor(color.r, color.g, color.b, color.a);
-    surface->SetTextPosition(x, y);
-    surface->PrintText(text, std::wcslen(text));
-}
 
-void fontInit(vgui::HFont& font, const char* fontname, bool& toggle) {
-    font = surface->sCreateFont();
-    surface->SetFontGlyphSet(font, fontname, 24, 400, 0, 0, surface->FONTFLAG_DROPSHADOW | surface->FONTFLAG_OUTLINE);
-    toggle = 1;
-}
 
 void __fastcall hkLockCursor(void* ecx, void* edx) {
     if (bMenuOpen) {

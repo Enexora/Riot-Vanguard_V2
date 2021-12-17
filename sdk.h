@@ -473,6 +473,14 @@ public:
 		using original_fn = void(__thiscall*)(void*, int&, int&);
 		return (*(original_fn**)this)[96](this, x, y);
 	}
+	void StartDrawing() {
+		using original_fn = void(__thiscall*)(void*);
+		return (*(original_fn**)this)[83](this);
+	}
+	void FinishDrawing() {
+		using original_fn = void(__thiscall*)(void*);
+		return (*(original_fn**)this)[85](this);
+	}
 	enum ETextureFormat
 	{
 		eTextureFormat_RGBA,
@@ -605,7 +613,6 @@ public:
 		using original_fn = int(__thiscall*)(void*);
 		return (*(original_fn**)this)[12](this);
 	}
-
 	float GetLastTimeStamp()
 	{
 		using original_fn = float(__thiscall*)(void*);
