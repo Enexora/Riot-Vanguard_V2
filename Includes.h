@@ -33,6 +33,7 @@ vgui::Color dark_gray = { 55,55,55, 240 };
 vgui::Color black = { 0, 0, 0, 255 };
 vgui::HFont Tahoma;
 vgui::HCursor cursor;
+float gFov = 100.f;
 
 #include "AntiAim.hpp"
 #include "extramath.h"

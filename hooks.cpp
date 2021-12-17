@@ -10,7 +10,7 @@ DWORD* pVTableFnc = 0;
 QAngle ViewAngles;
 QAngle aimbotAngles = { 0,0,0 };
 QAngle prevAngles = { 0,0,0 };
-float fovAimbot = 69.f;
+float fovAimbot = 15.f;
 bool flip = false;
 float lastTime;
 
@@ -199,7 +199,7 @@ void __fastcall hkOverrideView(void* ecx, void* edx, CViewSetup* pSetup) {
         fOverrideView(ecx, edx, pSetup);
         return;
     }
-    pSetup->flFOV = 100.f;
+    pSetup->flFOV = gFov;
     QAngle ViewAngles = { 0,0,0 };
     EngineClient->GetViewAngles(ViewAngles);
     if (*(int*)(localPlayer + m_iHealth) <= 0) {
@@ -216,18 +216,7 @@ void __fastcall hkOverrideView(void* ecx, void* edx, CViewSetup* pSetup) {
     fOverrideView(ecx, edx, pSetup);
 }
 
-void drawText(vgui::HFont font, int x, int y, const wchar_t* text, vgui::Color color) {
-    surface->SetTextFont(font);
-    surface->SetTextColor(color.r, color.g, color.b, color.a);
-    surface->SetTextPosition(x, y);
-    surface->PrintText(text, std::wcslen(text));
-}
 
-void fontInit(vgui::HFont& font, const char* fontname, bool& toggle) {
-    font = surface->sCreateFont();
-    surface->SetFontGlyphSet(font, fontname, 24, 400, 0, 0, surface->FONTFLAG_DROPSHADOW | surface->FONTFLAG_OUTLINE);
-    toggle = 1;
-}
 
 void __fastcall hkLockCursor(void* ecx, void* edx) {
     if (bMenuOpen) {
