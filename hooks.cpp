@@ -61,9 +61,8 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
     QAngle punchAngle = *(QAngle*)(localPlayer + m_aimPunchAngle);
     if (bBhop == true) {
         if (cmd->buttons & IN_JUMP) {
-            if (flags == 257 || flags == 263) {
+            if (flags & FL_ONGROUND) {
                 cmd->buttons |= IN_JUMP;
-                if(!*SendPacket) cmd->tickCount += lerp/perTick;
             }
             else
             {
@@ -121,8 +120,8 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
                 prevAngles = aimbotAngles;
                 if (bBT) {
                     entsim = *(float*)(ent + m_flSimulationTime);
-                    if (cmd->tickCount % 12 == 0) {
-                        backtrack.tick = (entsim + lerp + netchan->GetLatency(FLOW_INCOMING | FLOW_OUTGOING)) * perTick;
+                    if (cmd->tickCount % 36 == 0) {
+                        backtrack.tick = (entsim) * perTick;
                         backtrack.magnitude = magnitude;
                         backtrack.position = entHPos;
                     }
@@ -134,7 +133,7 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
         SlowWalk(cmd, forwardSpeed, sideSpeed);
     }
     cmd->buttons |= IN_BULLRUSH;
-    if(bAA && *(int*)(localPlayer + m_iHealth) > 0) { AntiAim::desync::jitter(cmd, prevAngles, flags != 257 && flags != 263); } // ANTIAIM
+    if(bAA && *(int*)(localPlayer + m_iHealth) > 0) { AntiAim::desync::helicopterFast(cmd, prevAngles, !(flags & FL_ONGROUND)); } // ANTIAIM
     else {
         *SendPacket = 1;
     }
@@ -158,7 +157,7 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
                         cmd->buttons |= IN_ATTACK;
                     }
                     if (bBT) {
-                        cmd->tickCount = btTick - 1;
+                        cmd->tickCount = btTick + 1;
                         cmd->viewangles.pitch = (180.f * (-atan((btEntPos.z - PlayerPos.z) / (btMagnitude))) / PI) - (2.f * punchAngle.pitch);
                         cmd->viewangles.yaw = 180.f * (atan2(btEntPos.y - PlayerPos.y, btEntPos.x - PlayerPos.x)) / PI - (2.f * punchAngle.yaw);
                         cmd->buttons |= IN_ATTACK;
@@ -168,6 +167,7 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
                     cmd->viewangles.pitch = clamp89(prevAngles.pitch);
                     cmd->viewangles.yaw = clamp180(prevAngles.yaw);
                     cmd->buttons |= IN_ATTACK;
+                    *SendPacket = 0;
                 }
             }
             else if((*(float*)(wepEntity + m_flNextPrimaryAttack)) > (float)*(int*)(localPlayer + m_nTickBase) * perTick) {
@@ -178,18 +178,17 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
     clamp89(cmd->viewangles.pitch);
     clamp180(cmd->viewangles.yaw); // prevent untrusted 
     prevAngles.yaw = 18000.f;
-    if (cmd->buttons & IN_ATTACK) *SendPacket = 1;
+    if (cmd->buttons & IN_ATTACK && bAA) *SendPacket = 1;
     if (SendPacket) { // yes yes. we check if send packet or not and acccordingly setup our player rendering
         cmdView.pitch = cmd->viewangles.pitch;
         cmdView.yaw = cmd->viewangles.yaw;
     }
     if (bTP == true) {
-
         *(float*)(localPlayer + 0x31E8) = cmdView.pitch; // this is to view our player in thirdperson (hardcoded offset cancer)
         *(float*)(localPlayer + 0x31EC) = cmdView.yaw;
     }
     FixMovement(cmd, EngineClient, ViewAngles); // if this is removed we cannot move where we are looking
-    cmd->tickCount += lerp / perTick;
+    cmd->tickCount += lerp + netchan->GetLatency(FLOW_INCOMING | FLOW_OUTGOING) / perTick;
     return false;
 }
 
