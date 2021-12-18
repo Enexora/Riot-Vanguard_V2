@@ -1,7 +1,7 @@
 #pragma once
 #include "Includes.h"
 #define perTick 0.015625f
-
+#define FL_ONGROUND (1<<0)
 struct Vector3 {
 	float x;
 	float y;
@@ -97,6 +97,7 @@ enum WeaponIndex
 	WEAPON_C4 = 49,
 	WEAPON_MAX
 };
+
 enum {
 	IN_ATTACK = (1 << 0),
 	IN_JUMP = (1 << 1),
