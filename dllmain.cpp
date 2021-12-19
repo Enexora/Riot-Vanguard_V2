@@ -5,6 +5,9 @@ DWORD WINAPI bhop(HMODULE hModule) {
     DWORD ulOldProtect[4];
     client = (DWORD)GetModuleHandle("client.dll");
     engine = (DWORD)GetModuleHandle("engine.dll");
+    vguimatsurface = (DWORD)GetModuleHandle("vguimatsurface.dll");
+    finishDrawing = (tFinishDrawing)(vguimatsurface + 0xD560);
+    startDrawing = (tStartDrawing)(vguimatsurface + 0xD380);
     clientMode = **(ClientModeShared***)((*(uintptr_t**)(pClientDLL))[10] + 0x5);
     input = *(CInput**)((*(DWORD**)pClientDLL)[16] + 1);
     globals = *(CGlobals**)((*(DWORD**)pClientDLL)[0] + 0x1F);
