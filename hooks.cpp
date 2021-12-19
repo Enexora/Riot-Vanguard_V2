@@ -133,7 +133,7 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
         SlowWalk(cmd, forwardSpeed, sideSpeed);
     }
     cmd->buttons |= IN_BULLRUSH;
-    if(bAA && *(int*)(localPlayer + m_iHealth) > 0) { AntiAim::desync::helicopterFast(cmd, prevAngles, !(flags & FL_ONGROUND)); } // ANTIAIM
+    if(bAA && *(int*)(localPlayer + m_iHealth) > 0) { AntiAim::desync::jitter(cmd, prevAngles, !(flags & FL_ONGROUND)); } // ANTIAIM
     else {
         *SendPacket = 1;
     }
@@ -188,7 +188,7 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
         *(float*)(localPlayer + 0x31EC) = cmdView.yaw;
     }
     FixMovement(cmd, EngineClient, ViewAngles); // if this is removed we cannot move where we are looking
-    cmd->tickCount += lerp + netchan->GetLatency(FLOW_INCOMING | FLOW_OUTGOING) / perTick;
+    cmd->tickCount += lerp + netchan->GetLatency(FLOW_INCOMING | FLOW_OUTGOING) / perTick; // lag comp :D
     return false;
 }
 
@@ -227,20 +227,23 @@ void __fastcall hkLockCursor(void* ecx, void* edx) {
     }
 }
 
+
 void __fastcall hkPaint(void* ecx, void* edx, PaintMode_t mode) {
     static bool bInit = 0;
     if (bInit == 0) fontInit(Tahoma, "Tahoma", bInit);
     int screenWidth;
     int screenHeight;
     EngineClient->GetScreenSize(screenWidth, screenHeight);
+    if(mode & PAINT_INGAMEPANELS || mode & PAINT_UIPANELS) startDrawing(surface);
     if (mode & PAINT_INGAMEPANELS) {
-        if (bBhop) drawText(Tahoma, 5, 350, (const wchar_t*)L"BHOP", green); else { drawText(Tahoma, 5, 350, (const wchar_t*)L"BHOP", red); }
-        if (bEsp) drawText(Tahoma, 5, 370, (const wchar_t*)L"ESP", green); else { drawText(Tahoma, 5, 370, (const wchar_t*)L"ESP", red); }
-        if (bBT) drawText(Tahoma, 5, 390, (const wchar_t*)L"BACKTRACK", green); else { drawText(Tahoma, 5, 390, (const wchar_t*)L"BACKTRACK", red); }
-        if (bAimbot) drawText(Tahoma, 5, 410, (const wchar_t*)L"AIMBOT", green); else { drawText(Tahoma, 5, 410, (const wchar_t*)L"AIMBOT", red); }
-        if (bAA) drawText(Tahoma, 5, 430, (const wchar_t*)L"ANTI-AIM", green); else { drawText(Tahoma, 5, 430, (const wchar_t*)L"ANTI-AIM", red); }
+        if (bBhop) drawText(Tahoma, 5, 350, (const wchar_t*)L"BHOP", green, 24, "Verdana"); else { drawText(Tahoma, 5, 350, (const wchar_t*)L"BHOP", red, 24, "Verdana"); }
+        if (bEsp) drawText(Tahoma, 5, 370, (const wchar_t*)L"ESP", green, 24, "Verdana"); else { drawText(Tahoma, 5, 370, (const wchar_t*)L"ESP", red, 24, "Verdana"); }
+        if (bBT) drawText(Tahoma, 5, 390, (const wchar_t*)L"BACKTRACK", green, 24, "Verdana"); else { drawText(Tahoma, 5, 390, (const wchar_t*)L"BACKTRACK", red, 24, "Verdana"); }
+        if (bAimbot) drawText(Tahoma, 5, 410, (const wchar_t*)L"AIMBOT", green, 24, "Verdana"); else { drawText(Tahoma, 5, 410, (const wchar_t*)L"AIMBOT", red, 24, "Verdana"); }
+        if (bAA) drawText(Tahoma, 5, 430, (const wchar_t*)L"ANTI-AIM", green, 24, "Verdana"); else { drawText(Tahoma, 5, 430, (const wchar_t*)L"ANTI-AIM", red, 24, "Verdana"); }
     }
     DrawMenu(mode);
+    finishDrawing(surface);
     fPaint(ecx, edx, mode);
 }
 
