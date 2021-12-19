@@ -523,6 +523,12 @@ public:
 	};
 };
 
+
+using tStartDrawing = void(__thiscall*)(void*);
+tStartDrawing startDrawing;
+using tFinishDrawing = void(__thiscall*)(void*);
+tFinishDrawing finishDrawing;
+
 using tLockCursor = void(__fastcall*)(void*, void*);
 tLockCursor fLockCursor;
 
