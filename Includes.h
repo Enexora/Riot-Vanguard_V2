@@ -4,16 +4,12 @@
 #include "windows.h"
 #include <iostream>
 #include <string>
-#include <d3d9.h>
-#include <d3dx9.h>
-#pragma comment(lib, "d3d9.lib")
-#pragma comment(lib, "d3dx9.lib")
 #include "sdk.h"
 #include "csgo.hpp"
 
-LPDIRECT3DDEVICE9 pDevice = nullptr;
 DWORD client;
 DWORD engine;
+DWORD vguimatsurface;
 IEngineClient* EngineClient = (IEngineClient*)GetInterface("engine.dll", "VEngineClient014");
 IEngineVGui* engineVGui = (IEngineVGui*)GetInterface("engine.dll", "VEngineVGui001");
 DWORD ClientState;
