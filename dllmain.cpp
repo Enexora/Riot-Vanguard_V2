@@ -2,7 +2,7 @@
 #include "Includes.h"
 
 DWORD WINAPI bhop(HMODULE hModule) {
-    DWORD ulOldProtect[4];
+    DWORD ulOldProtect[5];
     client = (DWORD)GetModuleHandle("client.dll");
     engine = (DWORD)GetModuleHandle("engine.dll");
     vguimatsurface = (DWORD)GetModuleHandle("vguimatsurface.dll");

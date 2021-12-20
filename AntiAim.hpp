@@ -27,7 +27,7 @@ namespace AntiAim {
         }
 
         void jitter(CUserCmd* cmd, QAngle prevAngles, bool inair) {
-            int chokeCount = 13;
+            int chokeCount = 6;
             static int sentPackets = 0;
             if (inair == true) chokeCount = 15;
             Vector3 velocity = *(Vector3*)(localPlayer + m_vecVelocity);
@@ -42,7 +42,7 @@ namespace AntiAim {
                 flstored_yaw = cmd->viewangles.yaw;
             }
             if (*SendPacket == 0) {
-                cmd->viewangles.yaw = clamp180(flstored_yaw - 120.f);
+                cmd->viewangles.yaw = clamp180(flstored_yaw - 115.f);
                 if (cmd->buttons & IN_DUCK) {
                     cmd->sidemove += cmd->tickCount % 2 ? 3.25 : -3.25;
                 }
@@ -78,7 +78,7 @@ namespace AntiAim {
         }
 
         void helicopterFast(CUserCmd* cmd, QAngle prevAngles, bool inair) {
-            int chokeCount = 5;
+            int chokeCount = 3;
             if (inair == true) chokeCount = 15;
             Vector3 velocity = *(Vector3*)(localPlayer + m_vecVelocity);
             if (EngineClient->IsVoiceRecording() && chokeCount > 4) chokeCount = 4;

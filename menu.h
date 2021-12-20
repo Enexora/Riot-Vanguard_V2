@@ -3,7 +3,7 @@
 
 void drawText(vgui::HFont font, int x, int y, const wchar_t* text, vgui::Color color, int size = 24, const char* fontname="Tahoma", int weight=400, int fontflags= surface->FONTFLAG_DROPSHADOW | surface->FONTFLAG_OUTLINE) {
     surface->SetTextFont(font);
-    surface->SetFontGlyphSet(font, fontname, size, weight, 0, 0, fontflags | surface->FONTFLAG_DROPSHADOW | surface->FONTFLAG_OUTLINE);
+    surface->SetFontGlyphSet(font, fontname, size, weight, 0, 0, fontflags | surface->FONTFLAG_OUTLINE);
     surface->SetTextColor(color.r, color.g, color.b, color.a);
     surface->SetTextPosition(x, y);
     surface->PrintText(text, std::wcslen(text));
@@ -11,7 +11,7 @@ void drawText(vgui::HFont font, int x, int y, const wchar_t* text, vgui::Color c
 
 void fontInit(vgui::HFont& font, const char* fontname, bool& toggle) {
     font = surface->sCreateFont();
-    surface->SetFontGlyphSet(font, fontname, 24, 400, 0, 0, surface->FONTFLAG_DROPSHADOW | surface->FONTFLAG_OUTLINE);
+    surface->SetFontGlyphSet(font, fontname, 24, 400, 0, 0, surface->FONTFLAG_OUTLINE);
     toggle = 1;
 }
 

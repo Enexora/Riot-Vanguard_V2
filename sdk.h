@@ -554,6 +554,9 @@ struct ClientModeShared
 		}
 };
 
+using tSendMove = void(__cdecl*)(void);
+tSendMove CL_SendMove;
+
 #define FLOW_OUTGOING	0		
 #define FLOW_INCOMING	1
 

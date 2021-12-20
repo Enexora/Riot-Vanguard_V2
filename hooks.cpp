@@ -120,8 +120,8 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
                 prevAngles = aimbotAngles;
                 if (bBT) {
                     entsim = *(float*)(ent + m_flSimulationTime);
-                    if (cmd->tickCount % 36 == 0) {
-                        backtrack.tick = (entsim) * perTick;
+                    if (cmd->tickCount % 16 == 0) {
+                        backtrack.tick = (entsim) / perTick;
                         backtrack.magnitude = magnitude;
                         backtrack.position = entHPos;
                     }
@@ -133,7 +133,7 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
         SlowWalk(cmd, forwardSpeed, sideSpeed);
     }
     cmd->buttons |= IN_BULLRUSH;
-    if(bAA && *(int*)(localPlayer + m_iHealth) > 0) { AntiAim::desync::jitter(cmd, prevAngles, !(flags & FL_ONGROUND)); } // ANTIAIM
+    if(bAA && *(int*)(localPlayer + m_iHealth) > 0) { AntiAim::desync::helicopterFast(cmd, prevAngles, !(flags & FL_ONGROUND)); } // ANTIAIM
     else {
         *SendPacket = 1;
     }
@@ -169,6 +169,7 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
                     cmd->buttons |= IN_ATTACK;
                     *SendPacket = 0;
                 }
+                if(!bBT) cmd->tickCount = (entsim)/ perTick;
             }
             else if((*(float*)(wepEntity + m_flNextPrimaryAttack)) > (float)*(int*)(localPlayer + m_nTickBase) * perTick) {
                 cmd->buttons &= ~IN_ATTACK; // "hide shot" 
@@ -179,7 +180,7 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
     clamp180(cmd->viewangles.yaw); // prevent untrusted 
     prevAngles.yaw = 18000.f;
     if (cmd->buttons & IN_ATTACK && bAA) *SendPacket = 1;
-    if (SendPacket) { // yes yes. we check if send packet or not and acccordingly setup our player rendering
+    if (!*SendPacket) { // yes yes. we check if send packet or not and acccordingly setup our player rendering
         cmdView.pitch = cmd->viewangles.pitch;
         cmdView.yaw = cmd->viewangles.yaw;
     }
@@ -188,8 +189,12 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
         *(float*)(localPlayer + 0x31EC) = cmdView.yaw;
     }
     FixMovement(cmd, EngineClient, ViewAngles); // if this is removed we cannot move where we are looking
-    cmd->tickCount += lerp + netchan->GetLatency(FLOW_INCOMING | FLOW_OUTGOING) / perTick; // lag comp :D
+    if(!bBT) cmd->tickCount += lerp + netchan->GetLatency(FLOW_INCOMING | FLOW_OUTGOING) / perTick; // lag comp :D
     return false;
+}
+
+void __declspec(naked) hkCLSendMove() {
+    CL_SendMove();
 }
 
 void __fastcall hkOverrideView(void* ecx, void* edx, CViewSetup* pSetup) {
@@ -215,8 +220,6 @@ void __fastcall hkOverrideView(void* ecx, void* edx, CViewSetup* pSetup) {
     fOverrideView(ecx, edx, pSetup);
 }
 
-
-
 void __fastcall hkLockCursor(void* ecx, void* edx) {
     if (bMenuOpen) {
         surface->UnlockCursor();
@@ -230,11 +233,11 @@ void __fastcall hkLockCursor(void* ecx, void* edx) {
 
 void __fastcall hkPaint(void* ecx, void* edx, PaintMode_t mode) {
     static bool bInit = 0;
-    if (bInit == 0) fontInit(Tahoma, "Tahoma", bInit);
+    if (bInit == 0) fontInit(Tahoma, "Verdana", bInit);
     int screenWidth;
     int screenHeight;
     EngineClient->GetScreenSize(screenWidth, screenHeight);
-    if(mode & PAINT_INGAMEPANELS || mode & PAINT_UIPANELS) startDrawing(surface);
+    if(mode)startDrawing(surface);
     if (mode & PAINT_INGAMEPANELS) {
         if (bBhop) drawText(Tahoma, 5, 350, (const wchar_t*)L"BHOP", green, 24, "Verdana"); else { drawText(Tahoma, 5, 350, (const wchar_t*)L"BHOP", red, 24, "Verdana"); }
         if (bEsp) drawText(Tahoma, 5, 370, (const wchar_t*)L"ESP", green, 24, "Verdana"); else { drawText(Tahoma, 5, 370, (const wchar_t*)L"ESP", red, 24, "Verdana"); }
