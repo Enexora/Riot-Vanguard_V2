@@ -74,6 +74,12 @@ Slider::Slider(int mStartX, int mStartY, int mEndX, int mEndY, int mMultiplier, 
     cursor = mCursor;
 }
 
+vgui::Color valred = { 255, 70, 84, 255};
+vgui::Color valblack = { 15, 24, 34, 255 };
+vgui::Color valgrey = { 27, 31, 36, 255 };
+vgui::Color valwhite = { 236, 233, 225, 255 };
+
+
 void DrawMenu(int mode)
 {
     if (GetAsyncKeyState(VK_INSERT) & 1) {
@@ -100,7 +106,7 @@ void DrawMenu(int mode)
         surface->DrawFilledRect(menuOriginX, menuOriginY, menuOriginX + menuWidth, menuOriginY + menuHeight);
 
         //Header for general features
-        drawText(Tahoma, menuOriginX + 20, menuOriginY + 17, (const wchar_t*)L"General Toggles", white, 36, "Arial", 700, surface->FONTFLAG_GAUSSIANBLUR);
+        drawText(Tahoma, menuOriginX + 20, menuOriginY + 17, (const wchar_t*)L"General Toggles", white, 36, "Consolas", 700, surface->FONTFLAG_GAUSSIANBLUR);
 
         //draw bhop button and check for click
         surface->SetDrawColor(black);
@@ -119,7 +125,8 @@ void DrawMenu(int mode)
         if (fov.click() > .1f) {
             gFov = fov.click();
         }
-        drawText(Tahoma, fov.start.x + 105, fov.start.y - 3, std::to_wstring(gFov).c_str(), white, 16); // text position is based from top left corner, slightly below it
+        if (gFov <= 0) gFov = .1f;
+        drawText(Tahoma, fov.start.x + 105, fov.start.y - 3, std::to_wstring((int)gFov).c_str(), white, 16); // text position is based from top left corner, slightly below it
 
 
     }

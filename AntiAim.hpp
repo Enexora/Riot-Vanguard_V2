@@ -38,11 +38,11 @@ namespace AntiAim {
             cmd->viewangles.pitch = 89.f;
             static float flstored_yaw;
             if (*SendPacket == 1) {
-                cmd->viewangles.yaw = sentPackets % 6 == 0 ? clamp180(prevAngles.yaw + 130.f + (55.8f * (1 - (250/(250 + abs(velocity.x) + abs(velocity.y)))))) : clamp180(prevAngles.yaw - 130.f - (42.943f * (1 - (250/(250 + abs(velocity.x) + abs(velocity.y))))));
+                cmd->viewangles.yaw = sentPackets % 6 == 0 ? clamp180(prevAngles.yaw + 130.f + (34.8f * (1 - (250/(250 + abs(velocity.x) + abs(velocity.y)))))) : clamp180(prevAngles.yaw - 130.f - (42.943f * (1 - (250/(250 + abs(velocity.x) + abs(velocity.y))))));
                 flstored_yaw = cmd->viewangles.yaw;
             }
             if (*SendPacket == 0) {
-                cmd->viewangles.yaw = clamp180(flstored_yaw - 115.f);
+                cmd->viewangles.yaw = clamp180(flstored_yaw - 90.f);
                 if (cmd->buttons & IN_DUCK) {
                     cmd->sidemove += cmd->tickCount % 2 ? 3.25 : -3.25;
                 }

@@ -12,22 +12,27 @@ DWORD WINAPI bhop(HMODULE hModule) {
     input = *(CInput**)((*(DWORD**)pClientDLL)[16] + 1);
     globals = *(CGlobals**)((*(DWORD**)pClientDLL)[0] + 0x1F);
     netchan = EngineClient->GetNetChannelInfo();
-    VirtualProtect((void*)input, 0xA00, PAGE_EXECUTE_READWRITE, &ulOldProtect[0]);
-    VirtualProtect(*(void**)engineVGui, 0xA00, PAGE_EXECUTE_READWRITE, &ulOldProtect[3]);
+    fCL_SendMove = (tSendMove)(engine + 0xD9160);
+    VirtualProtect((void*)input, 0xF00, PAGE_EXECUTE_READWRITE, &ulOldProtect[0]);
+    VirtualProtect(*(void**)engineVGui, 0xF00, PAGE_EXECUTE_READWRITE, &ulOldProtect[3]);
+    VirtualProtect(*(void**)pClientDLL, 0xF00, PAGE_EXECUTE_READWRITE, &ulOldProtect[5]);
     DWORD vtable = *(DWORD*)clientMode;
     SendPacket = (byte*)(engine + dwbSendPackets);
     VirtualProtect(SendPacket, sizeof(SendPacket), PAGE_EXECUTE_READWRITE, 0);
     VirtualProtect((void*)vtable, 0x400, PAGE_EXECUTE_READWRITE, &ulOldProtect[1]);
     VirtualProtect(*(void**)surface, 0xA00, PAGE_EXECUTE_READWRITE, &ulOldProtect[4]);
+    Detour((DWORD*)(engine + 0xD947F), hkSendMove);
     fCreateMove = (tCreateMove)*(DWORD*)(vtable + 24*sizeof(void*));
+    fLoadSkybox = (tLoadSkybox)(engine + 0x131720);
     fPaint = (tPaint)*(DWORD*)((*(DWORD*)engineVGui) + (14 * sizeof(void*)));
+    //fWriteUsercmdDelta = (tWriteUsercmdDelta)*(DWORD*)(**(DWORD**)(pClientDLL) + (22 * sizeof(void*))); // index 22
     fOverrideView = (tOverrideView)*(DWORD*)(vtable + 18*sizeof(void*));
     fLockCursor = (tLockCursor)*(DWORD*)((*(DWORD*)surface) + 67 * sizeof(void*));
-    *(DWORD*)((*(DWORD*)surface) + 67 * sizeof(void*)) = (DWORD)&hkLockCursor;
+    //*(DWORD*)((*(DWORD*)pClientDLL) + (22 * sizeof(void*))) = (DWORD)&hkWriteUsercmdDelta;
     *(DWORD*)((*(DWORD*)engineVGui) + (14 * sizeof(void*))) = (DWORD)&hkPaint;
     *(DWORD*)(vtable + 24*sizeof(void*)) = (DWORD)&hkCreateMove;
     *(DWORD*)(vtable + 18*sizeof(void*)) = (DWORD)&hkOverrideView;
-    EngineClient->ExecuteClientCmd("playvol ambient/flamenco.wav .25");
+    EngineClient->ClientCmdUnrestricted("playvol ambient/flamenco.wav .25");
     while (!GetAsyncKeyState(VK_END)){
         DWORD glowObj = *(DWORD*)(client + dwGlowObjectManager);
         localPlayer = *(DWORD*)(client + dwLocalPlayer);
@@ -79,6 +84,7 @@ DWORD WINAPI bhop(HMODULE hModule) {
     toggleAll();
     *SendPacket = true;
     *(DWORD*)((*(DWORD*)engineVGui) + (14 * sizeof(void*))) = (DWORD)fPaint;
+    //*(DWORD*)((*(DWORD*)pClientDLL) + (22 * sizeof(void*))) = (DWORD)fWriteUsercmdDelta;
     *(DWORD*)((*(DWORD*)surface) + 67 * sizeof(void*)) = (DWORD)fLockCursor;
     *(DWORD*)(vtable + 24 * sizeof(void*)) = (DWORD)fCreateMove;
     *(DWORD*)(vtable + 18 * sizeof(void*)) = (DWORD)fOverrideView;

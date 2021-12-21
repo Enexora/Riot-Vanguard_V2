@@ -21,6 +21,7 @@ CInput* input;
 DWORD localPlayer;
 CGlobals* globals;
 byte* SendPacket;
+bool bInAttack = 0;
 vgui::Color red = { 255, 0, 0, 255 };
 vgui::Color green = { 0, 230, 0, 255 };
 vgui::Color blue = { 0, 0, 255, 255 };

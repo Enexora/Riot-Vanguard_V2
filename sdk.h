@@ -2,6 +2,7 @@
 #include "Includes.h"
 #define perTick 0.015625f
 #define FL_ONGROUND (1<<0)
+
 struct Vector3 {
 	float x;
 	float y;
@@ -251,6 +252,7 @@ public:
 
 using tCreateMove = uintptr_t(__fastcall*)(void*,void*,float,CUserCmd*);
 tCreateMove fCreateMove;
+
 using tOverrideView = void(__fastcall*)(void*,void*,CViewSetup*);
 tOverrideView fOverrideView;
 
@@ -300,7 +302,6 @@ private:
 	//  all of the entities from forcing a new PackedEntity on the same tick (i.e., prevents them from getting lockstepped on this)
 	int				nTimestampRandomizeWindow;
 };
-
 
 class ITexture;
 
@@ -398,7 +399,6 @@ enum PaintMode_t
 class ISurface
 {
 public:
-
 	void SetDrawColor(int r, int g, int b, int a = 255)
 	{
 		using original_fn = void(__thiscall*)(void*, int r, int g, int b, int a);
@@ -523,9 +523,9 @@ public:
 	};
 };
 
-
 using tStartDrawing = void(__thiscall*)(void*);
 tStartDrawing startDrawing;
+
 using tFinishDrawing = void(__thiscall*)(void*);
 tFinishDrawing finishDrawing;
 
@@ -555,7 +555,13 @@ struct ClientModeShared
 };
 
 using tSendMove = void(__cdecl*)(void);
-tSendMove CL_SendMove;
+tSendMove fCL_SendMove;
+
+using tWriteUsercmdDelta = bool(__fastcall*)(void*, void*, int, void*);
+tWriteUsercmdDelta fWriteUsercmdDelta;
+
+using tLoadSkybox = void(__fastcall*)(const char*);
+tLoadSkybox fLoadSkybox;
 
 #define FLOW_OUTGOING	0		
 #define FLOW_INCOMING	1
