@@ -80,30 +80,10 @@ class Player {
 
 	//CBasePlayer is DT_BasePlayer
 	//CCSPlayer is DT_CSPlayer
-local_player + NetVarManager::
+//m_iHealth + NetVarManager::Get().GetOffset("DT_BasePlayer->m_fFlags");
 // problems EVERYTHING ITS ALL FUCKING FUCKED THE m_Collision DOESNT HAVE ANYTHING ITS THE WRONG OFFSET, THE FUCKING LOCAL PLAYER PLUS BULLSHIT DOESNT WORK AND THE FIRST SHIT AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-Get().GetOffset("DT_BasePlayer->m_fFlags");
-Get().GetOffset("DT_CSPlayer->m_ArmorValue");
-Get().GetOffset("DT_BasePlayer->m_fFlags");
-Get().GetOffset("DT_BasePlayer->m_fFlags");
-Get().GetOffset("DT_BasePlayer->m_fFlags");
-Get().GetOffset("DT_BasePlayer->m_fFlags");
-Get().GetOffset("DT_BasePlayer->m_fFlags");
-Get().GetOffset("DT_BasePlayer->m_fFlags");
-Get().GetOffset("DT_BasePlayer->m_fFlags");
-Get().GetOffset("DT_BasePlayer->m_fFlags");
-Get().GetOffset("DT_BasePlayer->m_fFlags");
-Get().GetOffset("DT_BasePlayer->m_fFlags");
-Get().GetOffset("DT_BasePlayer->m_fFlags");
-Get().GetOffset("DT_BasePlayer->m_fFlags");
-Get().GetOffset("DT_BasePlayer->m_fFlags");
-Get().GetOffset("DT_BasePlayer->m_fFlags");
-Get().GetOffset("DT_BasePlayer->m_fFlags");
-Get().GetOffset("DT_BasePlayer->m_fFlags");
-Get().GetOffset("DT_BasePlayer->m_fFlags");
-Get().GetOffset("DT_BasePlayer->m_fFlags");
-Get().GetOffset("DT_BasePlayer->m_fFlags");
-Get().GetOffset("DT_BasePlayer->m_fFlags");
-Get().GetOffset("DT_BasePlayer->m_fFlags");
-Get().GetOffset("DT_BasePlayer->m_fFlags");
-Get().GetOffset("DT_BasePlayer->m_fFlags");
+
+
+
+//Get().GetOffset("DT_BasePlayer->m_fFlags");
+//Get().GetOffset("DT_CSPlayer->m_ArmorValue");
