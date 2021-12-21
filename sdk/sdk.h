@@ -1,19 +1,13 @@
 #pragma once
-#include "Includes.h"
+#include <includes.h>
+
 #define perTick 0.015625f
 #define FL_ONGROUND (1<<0)
 
-struct Vector3 {
-	float x;
-	float y;
-	float z;
-};
-
-struct QAngle {
-	float pitch;
-	float yaw;
-	float roll;
-};
+#include "math/math.h"
+#include "enums.h"
+#include "recv.h"
+#include "netvar.h"
 
 typedef void* (__cdecl* tCreateInterface)(const char* name, int* returnCode);
 
@@ -25,110 +19,39 @@ void* GetInterface(const char* dllname, const char* interfacename)
 	return ginterface;
 }
 
-float clamp89(float a) {
-	if (a < -89.f) {
-		a = -89.f;
-	}
-	if (a > 89.f) {
-		a = 89.f;
-	}
-	return a;
-}
-float clamp180(float a) {
-	while (a < -180.f) {
-		a += 360.f;
-	}
-	while (a > 180.f) {
-		a -= 360.f;
-	}
-	return a;
-}
+class CGlobals; // predefining
 
-float clamp450(float a) {
-	if (a < -450.f) {
-		a = -450.f;
-	}
-	if (a > 450.f) {
-		a = 450.f;
-	}
-	return a;
-}
+class ClientClass;
 
-enum WeaponIndex
+// are pointers to IClientNetworkable
+typedef void*   (*CreateClientClassFn)(int entnum, int serialNum);
+typedef void*   (*CreateEventFn)();
+
+class ClientClass
 {
-	WEAPON_NONE,
-	WEAPON_DEAGLE = 1,
-	WEAPON_DUAL = 2,
-	WEAPON_FIVE7 = 3,
-	WEAPON_GLOCK = 4,
-	WEAPON_AK47 = 7,
-	WEAPON_AUG = 8,
-	WEAPON_AWP = 9,
-	WEAPON_FAMAS = 10,
-	WEAPON_G3SG1 = 11,
-	WEAPON_GALIL = 13,
-	WEAPON_M249 = 14,
-	WEAPON_M4A1 = 16,
-	WEAPON_MAC10 = 17,
-	WEAPON_P90 = 19,
-	WEAPON_UMP = 24,
-	WEAPON_XM1014 = 25,
-	WEAPON_BIZON = 26,
-	WEAPON_MAG7 = 27,
-	WEAPON_NEGEV = 28,
-	WEAPON_SAWEDOFF = 29,
-	WEAPON_TEC9 = 30,
-	WEAPON_TASER = 31,
-	WEAPON_HKP2000 = 32,
-	WEAPON_MP7 = 33,
-	WEAPON_MP9 = 34,
-	WEAPON_NOVA = 35,
-	WEAPON_P250_CZ75 = 36,
-	WEAPON_SCAR20 = 38,
-	WEAPON_SG553 = 39,
-	WEAPON_SSG08 = 40,
-	WEAPON_KNIFEGG = 41,
-	WEAPON_KNIFE = 42,
-	WEAPON_FLASHBANG = 43,
-	WEAPON_HEGRENADE = 44,
-	WEAPON_SMOKE = 45,
-	WEAPON_T_MOLOTOV = 46,
-	WEAPON_DECOY = 47,
-	WEAPON_CT_MOLOTOV = 48,
-	WEAPON_C4 = 49,
-	WEAPON_MAX
+public:
+	CreateClientClassFn      m_pCreateFn;
+	CreateEventFn            m_pCreateEventFn;
+	char*                    m_pNetworkName;
+	RecvTable*               m_pRecvTable;
+	ClientClass*             m_pNext;
+	int                      m_ClassID;
 };
 
-enum {
-	IN_ATTACK = (1 << 0),
-	IN_JUMP = (1 << 1),
-	IN_DUCK = (1 << 2),
-	IN_FORWARD = (1 << 3),
-	IN_BACK = (1 << 4),
-	IN_USE = (1 << 5),
-	IN_CANCEL = (1 << 6),
-	IN_LEFT = (1 << 7),
-	IN_RIGHT = (1 << 8),
-	IN_MOVELEFT = (1 << 9),
-	IN_MOVERIGHT = (1 << 10),
-	IN_ATTACK2 = (1 << 11),
-	IN_RUN = (1 << 12),
-	IN_RELOAD = (1 << 13),
-	IN_ALT1 = (1 << 14),
-	IN_ALT2 = (1 << 15),
-	IN_SCORE = (1 << 16),
-	IN_SPEED = (1 << 17),
-	IN_WALK = (1 << 18),
-	IN_ZOOM = (1 << 19),
-	IN_WEAPON1 = (1 << 20),
-	IN_WEAPON2 = (1 << 21),
-	IN_BULLRUSH = (1 << 22),
-	IN_GRENADE1 = (1 << 23),
-	IN_GRENADE2 = (1 << 24),
-	IN_LOOKSPIN = (1 << 25),
+class IBaseClientDLL
+{
+public:
+
+    virtual int              Connect(tCreateInterface appSystemFactory, CGlobals *pGlobals) = 0;
+    virtual int              Disconnect(void) = 0;
+    virtual int              Init(tCreateInterface appSystemFactory, CGlobals *pGlobals) = 0;
+    virtual void             PostInit() = 0;
+    virtual void             Shutdown(void) = 0;
+    virtual void             LevelInitPreEntity(char const* pMapName) = 0;
+    virtual void             LevelInitPostEntity() = 0;
+    virtual void             LevelShutdown(void) = 0;
+    virtual ClientClass*     GetAllClasses(void) = 0;
 };
-
-
 
 struct CUserCmd {
 	void* vmt;
@@ -700,4 +623,3 @@ public:
 		return (*(original_fn**)this)[224](this);
 	}
 };
-

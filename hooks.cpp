@@ -1,8 +1,5 @@
 #pragma once
-#include "Includes.h"
 #include "menu.h"
-#define PI 3.141592653f
-#define lerp 0.03125f
 
 
 DWORD* pVTableBase = 0;
@@ -251,18 +248,18 @@ bool __fastcall hkWriteUsercmdDelta(void* ecx, void* edx, int nSlot, void* buf) 
 
 void __fastcall hkPaint(void* ecx, void* edx, PaintMode_t mode) {
     static bool bInit = 0;
-    if (bInit == 0) fontInit(Tahoma, "Consolas", bInit);
+    if (bInit == 0) fontInit(Tahoma, "Tahoma", bInit);
     int screenWidth;
     int screenHeight;
     EngineClient->GetScreenSize(screenWidth, screenHeight);
     if (GetAsyncKeyState(0x5A) & 1) fLoadSkybox("sky_lunacy");
     if(mode)startDrawing(surface);
     if (mode & PAINT_INGAMEPANELS) {
-        if (bBhop) drawText(Tahoma, 5, 350, (const wchar_t*)L"BHOP", green, 24, "Consolas"); else { drawText(Tahoma, 5, 350, (const wchar_t*)L"BHOP", red, 24, "Consolas"); }
-        if (bEsp) drawText(Tahoma, 5, 370, (const wchar_t*)L"ESP", green, 24, "Consolas"); else { drawText(Tahoma, 5, 370, (const wchar_t*)L"ESP", red, 24, "Consolas"); }
-        if (bBT) drawText(Tahoma, 5, 390, (const wchar_t*)L"BACKTRACK", green, 24, "Consolas"); else { drawText(Tahoma, 5, 390, (const wchar_t*)L"BACKTRACK", red, 24, "Consolas"); }
-        if (bAimbot) drawText(Tahoma, 5, 410, (const wchar_t*)L"AIMBOT", green, 24, "Consolas"); else { drawText(Tahoma, 5, 410, (const wchar_t*)L"AIMBOT", red, 24, "Consolas"); }
-        if (bAA) drawText(Tahoma, 5, 430, (const wchar_t*)L"ANTI-AIM", green, 24, "Consolas"); else { drawText(Tahoma, 5, 430, (const wchar_t*)L"ANTI-AIM", red, 24, "Consolas"); }
+        if (bBhop) drawText(Tahoma, 5, 350, (const wchar_t*)L"BHOP", green, 24, "Tahoma"); else { drawText(Tahoma, 5, 350, (const wchar_t*)L"BHOP", red, 24, "Tahoma"); }
+        if (bEsp) drawText(Tahoma, 5, 370, (const wchar_t*)L"ESP", green, 24, "Tahoma"); else { drawText(Tahoma, 5, 370, (const wchar_t*)L"ESP", red, 24, "Tahoma"); }
+        if (bBT) drawText(Tahoma, 5, 390, (const wchar_t*)L"BACKTRACK", green, 24, "Tahoma"); else { drawText(Tahoma, 5, 390, (const wchar_t*)L"BACKTRACK", red, 24, "Tahoma"); }
+        if (bAimbot) drawText(Tahoma, 5, 410, (const wchar_t*)L"AIMBOT", green, 24, "Tahoma"); else { drawText(Tahoma, 5, 410, (const wchar_t*)L"AIMBOT", red, 24, "Tahoma"); }
+        if (bAA) drawText(Tahoma, 5, 430, (const wchar_t*)L"ANTI-AIM", green, 24, "Tahoma"); else { drawText(Tahoma, 5, 430, (const wchar_t*)L"ANTI-AIM", red, 24, "Tahoma"); }
     }
     DrawMenu(mode);
     finishDrawing(surface);

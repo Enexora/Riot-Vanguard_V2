@@ -1,20 +1,31 @@
 #pragma once
-#define PI 3.141592653
-#define DEG2RAD( x ) ( ( float )( x ) * ( float )( ( float )( PI ) / 180.0f ) )
-#include "windows.h"
+
+#define PI 3.14159265358979323846
+
+#define PI_F        ((float)(PI))    // Shouldn't collide with anything.
+#define DEG2RAD( x )  ( (float)(x) * (float)(PI_F / 180.f) )
+#define RAD2DEG( x )  ( (float)(x) * (float)(180.f / PI_F) )
+#define lerp 0.03125f
+#define NOMINMAX 
+
+#include <windows.h>
 #include <iostream>
 #include <string>
-#include "sdk.h"
+#include <map>
+#include <functional>
+
+#include "sdk/sdk.h"
 #include "csgo.hpp"
+
+IEngineClient* EngineClient = (IEngineClient*)GetInterface("engine.dll", "VEngineClient014");
+IEngineVGui* engineVGui = (IEngineVGui*)GetInterface("engine.dll", "VEngineVGui001");
+IBaseClientDLL* pClientDLL = (IBaseClientDLL*)GetInterface("client.dll", "VClient018");
+ISurface* surface = (ISurface*)GetInterface("vguimatsurface.dll", "VGUI_Surface031");
 
 DWORD client;
 DWORD engine;
 DWORD vguimatsurface;
-IEngineClient* EngineClient = (IEngineClient*)GetInterface("engine.dll", "VEngineClient014");
-IEngineVGui* engineVGui = (IEngineVGui*)GetInterface("engine.dll", "VEngineVGui001");
 DWORD ClientState;
-void* pClientDLL = (void*)GetInterface("client.dll", "VClient018");
-ISurface* surface = (ISurface*)GetInterface("vguimatsurface.dll", "VGUI_Surface031");
 ClientModeShared* clientMode;
 INetChannelInfo* netchan;
 CInput* input;
@@ -32,9 +43,6 @@ vgui::HFont Tahoma;
 vgui::HCursor cursor;
 float gFov = 100.f;
 
-#include "AntiAim.hpp"
-#include "extramath.h"
-#include <math.h>
-#include <TlHelp32.h>
-#include "Toggles.h"
+#include "antiaim.hpp"
+#include "toggles.h"
 #include "hooks.cpp"

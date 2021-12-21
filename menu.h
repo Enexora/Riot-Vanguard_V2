@@ -1,5 +1,6 @@
 #pragma once
-#include "Includes.h"
+
+#include <includes.h>
 
 void drawText(vgui::HFont font, int x, int y, const wchar_t* text, vgui::Color color, int size = 24, const char* fontname="Tahoma", int weight=400, int fontflags= surface->FONTFLAG_DROPSHADOW | surface->FONTFLAG_OUTLINE) {
     surface->SetTextFont(font);
@@ -106,7 +107,7 @@ void DrawMenu(int mode)
         surface->DrawFilledRect(menuOriginX, menuOriginY, menuOriginX + menuWidth, menuOriginY + menuHeight);
 
         //Header for general features
-        drawText(Tahoma, menuOriginX + 20, menuOriginY + 17, (const wchar_t*)L"General Toggles", white, 36, "Consolas", 700, surface->FONTFLAG_GAUSSIANBLUR);
+        drawText(Tahoma, menuOriginX + 20, menuOriginY + 17, (const wchar_t*)L"General Toggles", white, 36, "Tahoma", 700, surface->FONTFLAG_GAUSSIANBLUR);
 
         //draw bhop button and check for click
         surface->SetDrawColor(black);

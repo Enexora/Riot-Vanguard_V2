@@ -15,31 +15,37 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="framework.h">
+    <ClInclude Include="includes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Includes.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="sdk.h">
+    <ClInclude Include="sdk\sdk.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="hooks.cpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Toggles.h">
+    <ClInclude Include="toggles.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="extramath.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="AntiAim.hpp">
+    <ClInclude Include="antiaim.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="csgo.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="menu.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sdk\netvar.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sdk\recv.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sdk\math\math.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sdk\enums.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

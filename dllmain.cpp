@@ -1,17 +1,27 @@
 // dllmain.cpp : Defines the entry point for the DLL application.
-#include "Includes.h"
+
+#include <includes.h>
 
 DWORD WINAPI bhop(HMODULE hModule) {
     DWORD ulOldProtect[5];
-    client = (DWORD)GetModuleHandle("client.dll");
-    engine = (DWORD)GetModuleHandle("engine.dll");
-    vguimatsurface = (DWORD)GetModuleHandle("vguimatsurface.dll");
-    finishDrawing = (tFinishDrawing)(vguimatsurface + 0xD560);
-    startDrawing = (tStartDrawing)(vguimatsurface + 0xD380);
-    clientMode = **(ClientModeShared***)((*(uintptr_t**)(pClientDLL))[10] + 0x5);
-    input = *(CInput**)((*(DWORD**)pClientDLL)[16] + 1);
-    globals = *(CGlobals**)((*(DWORD**)pClientDLL)[0] + 0x1F);
-    netchan = EngineClient->GetNetChannelInfo();
+
+    [=]()->void {
+        client = (DWORD)GetModuleHandle("client.dll");
+        engine = (DWORD)GetModuleHandle("engine.dll");
+        vguimatsurface = (DWORD)GetModuleHandle("vguimatsurface.dll");
+        finishDrawing = (tFinishDrawing)(vguimatsurface + 0xD560);
+        startDrawing = (tStartDrawing)(vguimatsurface + 0xD380);
+        clientMode = **(ClientModeShared***)((*(uintptr_t**)(pClientDLL))[10] + 0x5);
+        input = *(CInput**)((*(DWORD**)pClientDLL)[16] + 1);
+        globals = *(CGlobals**)((*(DWORD**)pClientDLL)[0] + 0x1F);
+        netchan = EngineClient->GetNetChannelInfo();
+
+        // Dumping netvars
+        for (auto pClass = pClientDLL->GetAllClasses(); pClass; pClass = pClass->m_pNext)
+            if (pClass->m_pRecvTable)
+                NetVarManager::Get().DumpRecursive(pClass->m_pRecvTable); // make threaded or async
+    }();
+
     fCL_SendMove = (tSendMove)(engine + 0xD9160);
     VirtualProtect((void*)input, 0xF00, PAGE_EXECUTE_READWRITE, &ulOldProtect[0]);
     VirtualProtect(*(void**)engineVGui, 0xF00, PAGE_EXECUTE_READWRITE, &ulOldProtect[3]);
