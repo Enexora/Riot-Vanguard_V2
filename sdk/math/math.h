@@ -75,8 +75,8 @@ void VectorAngles(const Vector3& forward, Vector3& angles)
 
 QAngle CalcAngle(Vector3 src, Vector3 dst, float magnitude, QAngle punchAngle) {
 	QAngle ret;
-	ret.pitch = (180.f * (-atan((dst.z - src.z) / (magnitude))) / PI) - (2.f * punchAngle.pitch);
-	ret.yaw = 180.f * (atan2(dst.y - src.y, dst.x - src.x)) / PI - (2.f * punchAngle.yaw);
+	ret.pitch = clamp89((180.f * (-atanf((dst.z - src.z) / (magnitude))) / PI_F) - (2.f * punchAngle.pitch));
+	ret.yaw = clamp180(180.f * (atan2f(dst.y - src.y, dst.x - src.x)) / PI_F - (2.f * punchAngle.yaw));
 	return ret;
 }
 
