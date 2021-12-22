@@ -11,7 +11,7 @@ DWORD WINAPI bhop(HMODULE hModule) {
     startDrawing = (tStartDrawing)(vguimatsurface + 0xD380);
     clientMode = **(ClientModeShared***)((*(uintptr_t**)(pClientDLL))[10] + 0x5);
     input = *(CInput**)((*(DWORD**)pClientDLL)[16] + 1);
-    Globals = *(CGlobals**)((*(DWORD**)pClientDLL)[0] + 0x1F);
+    Globals = **(CGlobals***)((*(DWORD**)pClientDLL)[11] + 0xA);
     netchan = EngineClient->GetNetChannelInfo();
     // Dumping netvars
     for (auto pClass = pClientDLL->GetAllClasses(); pClass; pClass = pClass->m_pNext) {

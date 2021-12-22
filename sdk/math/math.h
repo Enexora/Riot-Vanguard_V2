@@ -1,6 +1,6 @@
-﻿
-#define TICK_INTERVAL        ( 1/64 )
-#define TIME_TO_TICKS( dt )    ( (int)( (float)(dt) / TICK_INTERVAL ) )
+﻿#include "includes.h"
+#define TICK_INTERVAL        ( Globals->interval_per_tick ) // replace with globals->tickinterval
+#define TIME_TO_TICKS( dt )    ( (int)( 0.5f + (float)(dt) / TICK_INTERVAL) )
 #define TICKS_TO_TIME( t )    ( TICK_INTERVAL * ( t ) )
 
 struct Vector3 {
@@ -71,6 +71,17 @@ void VectorAngles(const Vector3& forward, Vector3& angles)
 	angles.x = pitch;
 	angles.y = yaw;
 	angles.z = 0;
+}
+
+QAngle CalcAngle(Vector3 src, Vector3 dst, float magnitude, QAngle punchAngle) {
+	QAngle ret;
+	ret.pitch = (180.f * (-atan((dst.z - src.z) / (magnitude))) / PI) - (2.f * punchAngle.pitch);
+	ret.yaw = 180.f * (atan2(dst.y - src.y, dst.x - src.x)) / PI - (2.f * punchAngle.yaw);
+	return ret;
+}
+
+bool IsCloser(QAngle newAng, QAngle oldAng, QAngle ViewAngles) {
+	 return abs(ViewAngles.yaw - newAng.yaw) + abs(ViewAngles.pitch - newAng.pitch) > abs(ViewAngles.yaw - oldAng.yaw) + abs(ViewAngles.pitch - oldAng.pitch);
 }
 
 bool InRange(int a, int min, int max) {

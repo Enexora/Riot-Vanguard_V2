@@ -160,6 +160,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="csgo.hpp" />
+    <ClInclude Include="Backtrack.h" />
     <ClInclude Include="sdk\enums.h" />
     <ClInclude Include="sdk\math\math.h" />
     <ClInclude Include="sdk\patternscanningIDA.h" />
