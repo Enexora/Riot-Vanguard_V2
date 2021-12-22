@@ -137,6 +137,9 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
     if (cmd->buttons & IN_ATTACK || cmd->buttons & IN_ATTACK2 || cmd->buttons & IN_USE) {
         cmd->viewangles.pitch = clamp89(ViewAngles.pitch);
         cmd->viewangles.yaw = clamp180(ViewAngles.yaw);
+        if (bBT) {
+            cmd->tickCount = sBacktrack[bestTarget].tick;
+        }
     }
     if ((GetAsyncKeyState(VK_XBUTTON2)) && sqrt(pow((ViewAngles.yaw - prevAngles.yaw), 2) + pow((ViewAngles.pitch - prevAngles.pitch), 2)) <= fovAimbot && bAimbot == true) {
         if (wepEntity != NULL) {
@@ -156,6 +159,7 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
                 }
                 if (bBT) {
                     Backtrack(cmd, backtrack[btIndex], btIndex, PlayerPos, ViewAngles, punchAngle, 1);
+                    cmd->tickCount = sBacktrack[bestTarget].tick;
                 }
                 if(!bBT) cmd->tickCount = TIME_TO_TICKS(entsim);
             }
