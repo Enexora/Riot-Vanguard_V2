@@ -161,4 +161,4 @@ void DrawMenu()
     }
     if (gFov <= 0) gFov = .1f;
     drawText(HFMenuSliders, fov.start.x + 105, fov.start.y - 3, std::to_wstring((int)gFov).c_str(), white, 16); // text position is based from top left corner, slightly below it
-}
+}   
