@@ -50,6 +50,7 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
     static int trollEnt = 0;
     localPlayer = *(DWORD*)(client + dwLocalPlayer);
     static int btTick = 0;
+    static bool shouldResetbtRecords = 1;
     if (localPlayer == NULL) return false;
     DWORD flags = *(int*)(localPlayer + m_fFlags);
     ViewAngles = *(QAngle*)(ClientState + dwClientState_ViewAngles);
@@ -59,14 +60,18 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
             cmd->buttons &= ~IN_JUMP;
         }
     }
+    if (!EngineClient->IsInGame()) shouldResetbtRecords = 1;
+    if (shouldResetbtRecords && EngineClient->IsInGame()) {
+        resetRecords(shouldResetbtRecords, backtrack);
+    }
     DWORD initWep = *(DWORD*)(localPlayer + m_hActiveWeapon) & 0xFFF;
     DWORD wepEntity = *(DWORD*)(client + dwEntityList + (initWep - 1) * 0x10);
     float sideSpeed = cmd->sidemove;
     float forwardSpeed = cmd->forwardmove;
     Vector3 PlayerPos = *(Vector3*)(localPlayer + m_vecOrigin);
     static float entsim;
-    float bestMagnitude;
-    Vector3 bombAssHead;
+    static float bestMagnitude;
+    static Vector3 bombAssHead;
     Vector3 entHPos;
     for (int i = 0; i < 64; i++) {                                                                              // Ent list for aimbot
             DWORD ent = *(DWORD*)(client + dwEntityList + i * 0x10);
@@ -118,7 +123,7 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
         }
     }
     if (bBT) {
-        if (TIME_TO_TICKS(entsim) > backtrack[btIndex - 1].tick) {
+        if (TIME_TO_TICKS(entsim) > backtrack[btIndex - 1].tick && AngleIsWithin(ViewAngles, CalcAngle(PlayerPos, bombAssHead, bestMagnitude, punchAngle), fovAimbot + 5.f)) {
             if (btIndex >= 11) btIndex = 0;
             backtrack[btIndex].tick = TIME_TO_TICKS(entsim);
             backtrack[btIndex].magnitude = bestMagnitude;
@@ -164,6 +169,11 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
                 }
                 if (bBT) {
                     Backtrack(cmd, backtrack[btIndex], btIndex, PlayerPos, ViewAngles, punchAngle, 1);
+                    if (AngleIsWithin(ViewAngles, CalcAngle(PlayerPos, sBacktrack[bestTarget].position, sBacktrack[bestTarget].magnitude, punchAngle), fovAimbot)) {
+                        cmd->viewangles.pitch = CalcAngle(PlayerPos, sBacktrack[bestTarget].position, sBacktrack[bestTarget].magnitude, punchAngle).pitch;
+                        cmd->viewangles.yaw = CalcAngle(PlayerPos, sBacktrack[bestTarget].position, sBacktrack[bestTarget].magnitude, punchAngle).yaw;
+                        cmd->buttons |= IN_ATTACK;
+                    }
                     cmd->tickCount = sBacktrack[bestTarget].tick;
                 }
                 if(!bBT || bestTarget == (btTick - 1 + 10) % 12) cmd->tickCount = TIME_TO_TICKS(entsim);
