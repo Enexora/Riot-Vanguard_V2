@@ -19,7 +19,7 @@ void Detour(void* src, void* dst) {
     VirtualProtect(src, 0x5, oldProtect, 0);
 }
 
-void FixMovement(CUserCmd* cmd, IEngineClient* Engine, QAngle viewangles)
+void FixMovement(CUserCmd* cmd, QAngle viewangles)
 {
     Vector3 vecMove = { cmd->forwardmove, cmd->sidemove, cmd->upmove };
     float speed = sqrt(vecMove.x * vecMove.x + vecMove.y * vecMove.y);
@@ -41,16 +41,16 @@ void SlowWalk(CUserCmd* cmd, float forwardSpeed, float sideSpeed) {
     if (forwardSpeed < -39) { cmd->forwardmove = -39; }
 }
 static QAngle cmdView = { 0,0,0 };
-btRecord backtrack[11] = { 0, 0, {0,0,0} };
 bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd* cmd) {
     ClientState = *(DWORD*)(engine + dwClientState);
-    if (!EngineClient->IsInGame()) return 0;
+    if (!EngineClient->IsInGame()) return false;
     static bool shotLast = 1;
+    static btRecord backtrack[11] = { 0, 0, {0,0,0} };
     static int btIndex = 0;
     static int trollEnt = 0;
     localPlayer = *(DWORD*)(client + dwLocalPlayer);
     static int btTick = 0;
-    if (localPlayer == NULL) return 0;
+    if (localPlayer == NULL) return false;
     DWORD flags = *(int*)(localPlayer + m_fFlags);
     ViewAngles = *(QAngle*)(ClientState + dwClientState_ViewAngles);
     QAngle punchAngle = *(QAngle*)(localPlayer + m_aimPunchAngle);
@@ -110,11 +110,14 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
                 prevAngles = aimbotAngles;
                 entsim = *(float*)(ent + m_flSimulationTime);
                 if (bBT) {
-                    backtrack[btIndex].tick = TIME_TO_TICKS(entsim);
-                    backtrack[btIndex].magnitude = magnitude;
-                    backtrack[btIndex].position = entHPos;
-                    Backtrack(cmd, backtrack[btIndex], btIndex, PlayerPos, punchAngle, 0);
-                    btIndex = btIndex >= 11 ? 0 : btIndex + 1;
+                    if (TIME_TO_TICKS(entsim) > backtrack[btIndex-1].tick) {
+                        if (btIndex >= 11) btIndex = 0;
+                        backtrack[btIndex].tick = TIME_TO_TICKS(entsim);
+                        backtrack[btIndex].magnitude = magnitude;
+                        backtrack[btIndex].position = entHPos;
+                        Backtrack(cmd, backtrack[btIndex], btIndex, PlayerPos, ViewAngles, punchAngle, 0);
+                        btIndex = btIndex >= 11 ? 0 : btIndex + 1;
+                    }
                 }
             }
         }
@@ -130,6 +133,7 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
     if (bMenuOpen && (cmd->buttons & IN_ATTACK)) {
         cmd->buttons &= ~IN_ATTACK;
     }
+
     if (cmd->buttons & IN_ATTACK || cmd->buttons & IN_ATTACK2 || cmd->buttons & IN_USE) {
         cmd->viewangles.pitch = clamp89(ViewAngles.pitch);
         cmd->viewangles.yaw = clamp180(ViewAngles.yaw);
@@ -151,10 +155,7 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
                     *SendPacket = 0;
                 }
                 if (bBT) {
-                    cmd->tickCount = backtrack[btIndex + 1].tick;
-                    cmd->viewangles.pitch = CalcAngle(PlayerPos, backtrack[btIndex + 1].position, backtrack[btIndex+1].magnitude, punchAngle).pitch;
-                    cmd->viewangles.yaw = CalcAngle(PlayerPos, backtrack[btIndex + 1].position, backtrack[btIndex+1].magnitude, punchAngle).yaw;
-                    cmd->buttons |= IN_ATTACK;
+                    Backtrack(cmd, backtrack[btIndex], btIndex, PlayerPos, ViewAngles, punchAngle, 1);
                 }
                 if(!bBT) cmd->tickCount = TIME_TO_TICKS(entsim);
             }
@@ -175,7 +176,7 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
         *(float*)(localPlayer + 0x31E8) = cmdView.pitch; // this is to view our player in thirdperson (hardcoded offset cancer)
         *(float*)(localPlayer + 0x31EC) = cmdView.yaw;
     }
-    FixMovement(cmd, EngineClient, ViewAngles); // if this is removed we cannot move where we are looking
+    FixMovement(cmd, ViewAngles); // if this is removed we cannot move where we are looking
     if (GetAsyncKeyState(0x58)) cmd->commandNumber = INT_MAX;
     return false;
 }
