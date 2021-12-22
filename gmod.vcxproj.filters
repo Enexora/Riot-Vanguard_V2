@@ -54,13 +54,10 @@
     <ClInclude Include="menu\resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="menu\lodepng.h">
+    <ClInclude Include="menu\images\resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="resource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\OneDrive\Desktop\lodepng-master\lodepng.h">
+    <ClInclude Include="menu\images\lodepng\lodepng.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -68,7 +65,7 @@
     <ClCompile Include="dllmain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\OneDrive\Desktop\lodepng-master\lodepng.cpp">
+    <ClCompile Include="menu\images\lodepng\lodepng.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

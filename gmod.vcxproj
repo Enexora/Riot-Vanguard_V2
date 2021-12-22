@@ -159,11 +159,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\OneDrive\Desktop\lodepng-master\lodepng.h" />
     <ClInclude Include="csgo.hpp" />
-    <ClInclude Include="menu\lodepng.h" />
+    <ClInclude Include="menu\images\lodepng\lodepng.h" />
     <ClInclude Include="menu\resource.h" />
-    <ClInclude Include="resource.h" />
+    <ClInclude Include="menu\images\resource.h" />
     <ClInclude Include="sdk\enums.h" />
     <ClInclude Include="sdk\math\math.h" />
     <ClInclude Include="sdk\patternscanningIDA.h" />
@@ -177,8 +176,8 @@
     <ClInclude Include="toggles.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\OneDrive\Desktop\lodepng-master\lodepng.cpp" />
     <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="menu\images\lodepng\lodepng.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Riot-Vanguard_V2.rc" />

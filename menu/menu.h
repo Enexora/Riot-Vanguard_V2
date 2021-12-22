@@ -68,6 +68,16 @@ public:
         surface->draw_textured_rect(x, y, x + width_, y + height_);
     }
 };
+
+Then all you have to do is create a texture:
+
+Code:
+loli = c_texture( LOLI, 540, 474 );
+And then draw it:
+
+Code:
+loli.paint( 100, 100 );
+
 */
 
 void drawText(vgui::HFont font, int x, int y, const wchar_t* text, vgui::Color color, int size = 24, const char* fontname="Tahoma", int weight=400, int fontflags= 0) {
