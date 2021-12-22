@@ -8,23 +8,24 @@ struct btRecord
 	Vector3 position;
 };
 
-void Backtrack(CUserCmd* cmd, btRecord backtrack, int index, Vector3 PlayerPos, QAngle punchAngle, bool bWasAimbot) {
-	QAngle ViewAngles;
-	EngineClient->GetViewAngles(ViewAngles);
+btRecord sBacktrack[11];
+int bestTarget = 0;
+void Backtrack(CUserCmd* cmd, btRecord backtrack, int index, Vector3 PlayerPos, QAngle viewAngles, QAngle punchAngle, bool bWasAimbot) {
 	static QAngle oldAngles = { 0,0,0 };
-	static QAngle newAngles;
-	static int bestTarget = 0;
-	btRecord sBacktrack[11];
 	sBacktrack[index] = backtrack;
-	if (IsCloser(CalcAngle(backtrack.position, PlayerPos, backtrack.magnitude, punchAngle), oldAngles, ViewAngles)) {
-		newAngles = CalcAngle(backtrack.position, PlayerPos, backtrack.magnitude, punchAngle);
-		bestTarget = index;
+	for (int i = 0; i < 11; i++) {
+		if (&sBacktrack[i]) {
+			if (IsCloser(oldAngles, CalcAngle(PlayerPos, sBacktrack[i].position,  sBacktrack[i].magnitude, punchAngle), viewAngles)) {
+				oldAngles = CalcAngle(PlayerPos, sBacktrack[i].position,  sBacktrack[i].magnitude, punchAngle);
+				bestTarget = i;
+			}
+		}
 	}
-	oldAngles = newAngles;
-	if(cmd->buttons & IN_ATTACK) cmd->tickCount = sBacktrack[bestTarget].tick;
-	if (bWasAimbot) {
-		cmd->viewangles.pitch = newAngles.pitch;
-		cmd->viewangles.yaw = newAngles.yaw;
+	cmd->tickCount = sBacktrack[bestTarget].tick;
+	if (bWasAimbot == 1) {
+		cmd->viewangles.pitch = oldAngles.pitch;
+		cmd->viewangles.yaw = oldAngles.yaw;
 		cmd->buttons |= IN_ATTACK;
 	}
+	oldAngles.yaw = 1800000.f;
 }
