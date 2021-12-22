@@ -1,8 +1,74 @@
 #pragma once
 
 #include "includes.h"
+#include "menu/images/resource.h"
+#include "images/lodepng/lodepng.h"
+#include "images/lodepng/lodepng.cpp"
 
 bool bIndicators = 1;
+
+/*
+std::uint8_t* load_image(unsigned short id, int width, int height, const std::string& type = "PNG")
+{
+    // csgo->module is the module you get from creating a thread in DLLMain
+    // static DWORD __stdcall thread( const LPVOID parameter )
+    // csgo->module = HMODULE( parameter )
+    auto resource = FindResource(csgo->module, MAKEINTRESOURCE(id), type.data());
+    auto loaded_resource = LoadResource(csgo->module, resource);
+    auto resource_ptr = LockResource(loaded_resource);
+    auto resource_size = SizeofResource(csgo->module, resource);
+
+    std::vector< std::uint8_t > image;
+
+    auto w = std::uint32_t(width);
+    auto h = std::uint32_t(height);
+
+    if (const auto error = lodepng::decode(image, w, h, (unsigned char*)resource_ptr, resource_size))
+        exit(0);
+
+    const auto data = new std::uint8_t[image.size()];
+    std::copy(image.begin(), image.end(), data);
+
+    return data;
+}
+
+class c_texture
+{
+    // raw image data
+    unsigned char* data_{ };
+
+    // ISurface texture id
+    unsigned int texture_id_{ 0 };
+
+    // size
+    int width_{ };
+    int height_{ };
+
+public:
+    c_texture() = default;
+
+    // create texture
+    c_texture(unsigned short id, int width, int height, const std::string& type = "PNG")
+        : data_{ load_image(id, width, height, type) }
+        , width_(width)
+        , height_(height)
+    { }
+
+    // draw texture
+    void paint(int x, int y)
+    {
+        if (!surface->is_texture_id_valid(texture_id_))
+        {
+            texture_id_ = surface->create_new_texture_id(true);
+            surface->draw_set_texture_rgba(texture_id_, data_, uint32_t(width_), uint32_t(height_));
+        }
+
+        surface->draw_set_color(255, 255, 255, 255);
+        surface->draw_set_texture(texture_id_);
+        surface->draw_textured_rect(x, y, x + width_, y + height_);
+    }
+};
+*/
 
 void drawText(vgui::HFont font, int x, int y, const wchar_t* text, vgui::Color color, int size = 24, const char* fontname="Tahoma", int weight=400, int fontflags= 0) {
     surface->SetTextFont(font);
@@ -162,3 +228,4 @@ void DrawMenu()
     if (gFov <= 0) gFov = .1f;
     drawText(HFMenuSliders, fov.start.x + 105, fov.start.y - 3, std::to_wstring((int)gFov).c_str(), white, 16); // text position is based from top left corner, slightly below it
 }   
+

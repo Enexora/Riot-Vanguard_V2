@@ -33,7 +33,7 @@
     <ClInclude Include="csgo.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="menu.h">
+    <ClInclude Include="menu\menu.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="sdk\netvar.h">
@@ -51,10 +51,35 @@
     <ClInclude Include="sdk\patternscanningIDA.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="menu\resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="menu\lodepng.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\OneDrive\Desktop\lodepng-master\lodepng.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\OneDrive\Desktop\lodepng-master\lodepng.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Riot-Vanguard_V2.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="E:\Random\Sorting hat\1924822548\chinaman.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

@@ -17,6 +17,7 @@
 #include "sdk/sdk.h"
 #include "csgo.hpp"
 
+
 IEngineClient* EngineClient = (IEngineClient*)GetInterface("engine.dll", "VEngineClient014");
 IEngineVGui* engineVGui = (IEngineVGui*)GetInterface("engine.dll", "VEngineVGui001");
 IBaseClientDLL* pClientDLL = (IBaseClientDLL*)GetInterface("client.dll", "VClient018");
