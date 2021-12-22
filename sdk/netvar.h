@@ -68,6 +68,9 @@ public:
 	return *reinterpret_cast<type*>(uintptr_t(this) + offset); \
 }
 
+// 	NETVAR(Vector, m_skybox3d_origin, "DT_BasePlayer", "DT_LocalPlayerExclusive", "DT_Local", "m_skybox3d.origin");
+// NETVAR(int, m_skybox3d_scale, "DT_BasePlayer", "DT_LocalPlayerExclusive", "DT_Local", "m_skybox3d.scale");
+
 class Player {
 public:
 	NETVAR(m_vecOrigin, Vector3, "DT_BasePlayer->m_vecOrigin")

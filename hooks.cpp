@@ -66,6 +66,7 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
     Vector3 PlayerPos = *(Vector3*)(localPlayer + m_vecOrigin);
     static float entsim;
     float bestMagnitude;
+    Vector3 bombAssHead;
     Vector3 entHPos;
     for (int i = 0; i < 64; i++) {                                                                              // Ent list for aimbot
             DWORD ent = *(DWORD*)(client + dwEntityList + i * 0x10);
@@ -111,6 +112,7 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
             if (IsCloser(prevAngles, aimbotAngles, ViewAngles)) {
                 prevAngles = aimbotAngles;
                 entsim = *(float*)(ent + m_flSimulationTime);
+                bombAssHead = entHPos;
                 bestMagnitude = magnitude;
             }
         }
@@ -120,7 +122,7 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
             if (btIndex >= 11) btIndex = 0;
             backtrack[btIndex].tick = TIME_TO_TICKS(entsim);
             backtrack[btIndex].magnitude = bestMagnitude;
-            backtrack[btIndex].position = entHPos;
+            backtrack[btIndex].position = bombAssHead;
             Backtrack(cmd, backtrack[btIndex], btIndex, PlayerPos, ViewAngles, punchAngle, 0);
             btIndex = btIndex >= 11 ? 0 : btIndex + 1;
         }
@@ -144,7 +146,7 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
             cmd->tickCount = sBacktrack[bestTarget].tick;
         }
     }
-    if ((GetAsyncKeyState(VK_XBUTTON2)) && sqrt(pow((ViewAngles.yaw - prevAngles.yaw), 2) + pow((ViewAngles.pitch - prevAngles.pitch), 2)) <= fovAimbot && bAimbot == true) {
+    if ((GetAsyncKeyState(VK_XBUTTON2)) && (AngleIsWithin(ViewAngles, prevAngles, fovAimbot) || AngleIsWithin(ViewAngles, CalcAngle(PlayerPos, sBacktrack[bestTarget].position, bestMagnitude, punchAngle), fovAimbot)) && bAimbot == true) {
         if (wepEntity != NULL) {
             if ((*(float*)(wepEntity + m_flNextPrimaryAttack)) <= (float)*(int*)(localPlayer + m_nTickBase) * perTick) {
                 if (bAA) {
@@ -164,7 +166,7 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
                     Backtrack(cmd, backtrack[btIndex], btIndex, PlayerPos, ViewAngles, punchAngle, 1);
                     cmd->tickCount = sBacktrack[bestTarget].tick;
                 }
-                if(!bBT) cmd->tickCount = TIME_TO_TICKS(entsim);
+                if(!bBT || bestTarget == (btTick - 1 + 10) % 12) cmd->tickCount = TIME_TO_TICKS(entsim);
             }
             else if((*(float*)(wepEntity + m_flNextPrimaryAttack)) > (float)*(int*)(localPlayer + m_nTickBase) * perTick) {
                 cmd->buttons &= ~IN_ATTACK; // "hide shot" 
@@ -219,14 +221,6 @@ void __fastcall hkLockCursor(void* ecx, void* edx) {
     {
         fLockCursor(ecx,edx);
     }
-}
-
-void __cdecl hkSendMove() {
-    fCL_SendMove();
-}
-
-bool __fastcall hkWriteUsercmdDelta(void* ecx, void* edx, int nSlot, void* buf) {
-    return fWriteUsercmdDelta(ecx, edx, nSlot, buf);
 }
 
 void __fastcall hkPaint(void* ecx, void* edx, PaintMode_t mode) {

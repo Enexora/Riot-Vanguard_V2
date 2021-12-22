@@ -84,6 +84,10 @@ bool IsCloser(QAngle newAng, QAngle oldAng, QAngle ViewAngles) {
 	 return abs(ViewAngles.yaw - newAng.yaw) + abs(ViewAngles.pitch - newAng.pitch) > abs(ViewAngles.yaw - oldAng.yaw) + abs(ViewAngles.pitch - oldAng.pitch);
 }
 
+bool AngleIsWithin(QAngle ViewAngles, QAngle desiredAngles, float bounds) {
+	return sqrt(pow((ViewAngles.yaw - desiredAngles.yaw), 2) + pow((ViewAngles.pitch - desiredAngles.pitch), 2)) <= bounds;
+}
+
 bool InRange(int a, int min, int max) {
 	return (a <= max && a >= min);
 }

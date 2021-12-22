@@ -56,8 +56,6 @@ DWORD WINAPI bhop(HMODULE hModule) {
         if (EngineClient->GetNetChannelInfo() != netchan) {
             netchan = EngineClient->GetNetChannelInfo();
         }
-
-        DWORD flags = *(int*)(localPlayer + m_fFlags);
         for (int i = 0; i < 64; i++) {
             DWORD ent = *(DWORD*)(client + dwEntityList + i * 0x10);
                 if (ent == NULL) continue;
