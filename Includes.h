@@ -50,4 +50,5 @@ float gFov = 100.f;
 #include "sdk/patternscanningIDA.h"
 #include "antiaim.hpp"
 #include "toggles.h"
+#include "Backtrack.h"
 #include "hooks.cpp"
