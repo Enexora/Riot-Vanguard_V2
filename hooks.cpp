@@ -65,13 +65,15 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
     float forwardSpeed = cmd->forwardmove;
     Vector3 PlayerPos = *(Vector3*)(localPlayer + m_vecOrigin);
     static float entsim;
-        for (int i = 0; i < 64; i++) {                                                                              // Ent list for aimbot
+    float bestMagnitude;
+    Vector3 entHPos;
+    for (int i = 0; i < 64; i++) {                                                                              // Ent list for aimbot
             DWORD ent = *(DWORD*)(client + dwEntityList + i * 0x10);
             if (ent == NULL) {
                 aimbotAngles = ViewAngles;
                 continue;
             }
-            Vector3 entHPos = *(Vector3*)(ent + m_vecOrigin);
+            entHPos = *(Vector3*)(ent + m_vecOrigin);
             Vector3 entVelocity = *(Vector3*)(ent + m_vecVelocity);
             PlayerPos = *(Vector3*)(localPlayer + m_vecOrigin);
             float trollmagnitude = sqrt(((entHPos.x - PlayerPos.x) * (entHPos.x - PlayerPos.x)) + ((entHPos.y - PlayerPos.y) * (entHPos.y - PlayerPos.y)));
@@ -109,17 +111,18 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
             if (IsCloser(prevAngles, aimbotAngles, ViewAngles)) {
                 prevAngles = aimbotAngles;
                 entsim = *(float*)(ent + m_flSimulationTime);
-                if (bBT) {
-                    if (TIME_TO_TICKS(entsim) > backtrack[btIndex-1].tick) {
-                        if (btIndex >= 11) btIndex = 0;
-                        backtrack[btIndex].tick = TIME_TO_TICKS(entsim);
-                        backtrack[btIndex].magnitude = magnitude;
-                        backtrack[btIndex].position = entHPos;
-                        Backtrack(cmd, backtrack[btIndex], btIndex, PlayerPos, ViewAngles, punchAngle, 0);
-                        btIndex = btIndex >= 11 ? 0 : btIndex + 1;
-                    }
-                }
+                bestMagnitude = magnitude;
             }
+        }
+    }
+    if (bBT) {
+        if (TIME_TO_TICKS(entsim) > backtrack[btIndex - 1].tick) {
+            if (btIndex >= 11) btIndex = 0;
+            backtrack[btIndex].tick = TIME_TO_TICKS(entsim);
+            backtrack[btIndex].magnitude = bestMagnitude;
+            backtrack[btIndex].position = entHPos;
+            Backtrack(cmd, backtrack[btIndex], btIndex, PlayerPos, ViewAngles, punchAngle, 0);
+            btIndex = btIndex >= 11 ? 0 : btIndex + 1;
         }
     }
     if (GetAsyncKeyState(0x43)) {

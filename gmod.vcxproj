@@ -159,6 +159,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Backtrack.h" />
     <ClInclude Include="csgo.hpp" />
     <ClInclude Include="menu\images\lodepng\lodepng.h" />
     <ClInclude Include="menu\resource.h" />

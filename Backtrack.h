@@ -15,8 +15,8 @@ void Backtrack(CUserCmd* cmd, btRecord backtrack, int index, Vector3 PlayerPos, 
 	sBacktrack[index] = backtrack;
 	for (int i = 0; i < 11; i++) {
 		if (&sBacktrack[i]) {
-			if (IsCloser(oldAngles, CalcAngle(PlayerPos, sBacktrack[i].position,  sBacktrack[i].magnitude, punchAngle), viewAngles)) {
-				oldAngles = CalcAngle(PlayerPos, sBacktrack[i].position,  sBacktrack[i].magnitude, punchAngle);
+			if (IsCloser(oldAngles, CalcAngle(PlayerPos, sBacktrack[i].position, sBacktrack[i].magnitude, punchAngle), viewAngles)) {
+				oldAngles = CalcAngle(PlayerPos, sBacktrack[i].position, sBacktrack[i].magnitude, punchAngle);
 				bestTarget = i;
 			}
 		}
