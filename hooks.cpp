@@ -48,31 +48,21 @@ void SlowWalk(CUserCmd* cmd, float forwardSpeed, float sideSpeed) {
     if (forwardSpeed < -39) { cmd->forwardmove = -39; }
 }
 static QAngle cmdView = { 0,0,0 };
-
+btRecord backtrack[12] = { 0, 0, {0,0,0} };
 bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd* cmd) {
     ClientState = *(DWORD*)(engine + dwClientState);
     if (!EngineClient->IsInGame()) return 0;
     static bool shotLast = 1;
     static int trollEnt = 0;
     localPlayer = *(DWORD*)(client + dwLocalPlayer);
-    static btRecord backtrack;
     static int btTick = 0;
-    static QAngle btAngles = { 0,0,0 };
-    static Vector3 btEntPos{ 0,0,0 };
-    static float btMagnitude = 0.f;
     if (localPlayer == NULL) return 0;
     DWORD flags = *(int*)(localPlayer + m_fFlags);
     ViewAngles = *(QAngle*)(ClientState + dwClientState_ViewAngles);
     QAngle punchAngle = *(QAngle*)(localPlayer + m_aimPunchAngle);
     if (bBhop == true) {
-        if (cmd->buttons & IN_JUMP) {
-            if (flags & FL_ONGROUND) {
-                cmd->buttons |= IN_JUMP;
-            }
-            else
-            {
-                cmd->buttons &= ~IN_JUMP;
-            }
+        if (cmd->buttons & IN_JUMP && !(flags & FL_ONGROUND)) {
+            cmd->buttons &= ~IN_JUMP;
         }
     }
     DWORD initWep = *(DWORD*)(localPlayer + m_hActiveWeapon) & 0xFFF;
@@ -100,6 +90,7 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
                 cmd->forwardmove = clamp450(cos(DEG2RAD(ViewAngles.yaw)) * (250 * (entHPos.x - PlayerPos.x) + entVelocity.x) + sin(DEG2RAD(ViewAngles.yaw)) * (250 * (entHPos.y - PlayerPos.y) + entVelocity.y));
                 cmd->sidemove = clamp450(cos(DEG2RAD(ViewAngles.yaw)) * -(250 * (entHPos.y - PlayerPos.y) + entVelocity.y) + sin(DEG2RAD(ViewAngles.yaw)) * (250 * (entHPos.x - PlayerPos.x) + entVelocity.x));
             }
+
             entHPos.x = *(float*)(*(DWORD*)(ent + m_dwBoneMatrix) + 0x30 * 8 + 0x0C);
             entHPos.y = *(float*)(*(DWORD*)(ent + m_dwBoneMatrix) + 0x30 * 8 + 0x1C);
             entHPos.z = *(float*)(*(DWORD*)(ent + m_dwBoneMatrix) + 0x30 * 8 + 0x2C);
@@ -123,13 +114,13 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
             clamp180(aimbotAngles.yaw);
             if (abs(ViewAngles.yaw - prevAngles.yaw) + abs(ViewAngles.pitch - prevAngles.pitch) > abs(ViewAngles.yaw - aimbotAngles.yaw) + abs(ViewAngles.pitch - aimbotAngles.pitch)) {
                 prevAngles = aimbotAngles;
+                entsim = *(float*)(ent + m_flSimulationTime);
                 if (bBT) {
-                    entsim = *(float*)(ent + m_flSimulationTime);
-                    if (cmd->tickCount % 16 == 0) {
-                        backtrack.tick = (entsim) / perTick;
-                        backtrack.magnitude = magnitude;
-                        backtrack.position = entHPos;
-                    }
+                    static int btIndex = 0;
+                    backtrack[btIndex].tick = TIME_TO_TICKS(entsim);
+                    backtrack[btIndex].magnitude = magnitude;
+                    backtrack[btIndex].position = entHPos;
+                    btIndex = btIndex >= 11 ? 0 : btIndex + 1;
                 }
             }
         }
@@ -153,18 +144,9 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
         if (wepEntity != NULL) {
             if ((*(float*)(wepEntity + m_flNextPrimaryAttack)) <= (float)*(int*)(localPlayer + m_nTickBase) * perTick) {
                 if (bAA) {
-                    btTick = backtrack.tick;
-                    btMagnitude = backtrack.magnitude;
-                    btEntPos = backtrack.position;
                     if (!bBT) {
                         cmd->viewangles.pitch = clamp89(prevAngles.pitch);
                         cmd->viewangles.yaw = clamp180(prevAngles.yaw);
-                        cmd->buttons |= IN_ATTACK;
-                    }
-                    if (bBT) {
-                        cmd->tickCount = btTick + 1;
-                        cmd->viewangles.pitch = (180.f * (-atan((btEntPos.z - PlayerPos.z) / (btMagnitude))) / PI) - (2.f * punchAngle.pitch);
-                        cmd->viewangles.yaw = 180.f * (atan2(btEntPos.y - PlayerPos.y, btEntPos.x - PlayerPos.x)) / PI - (2.f * punchAngle.yaw);
                         cmd->buttons |= IN_ATTACK;
                     }
                 }
@@ -174,18 +156,18 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
                     cmd->buttons |= IN_ATTACK;
                     *SendPacket = 0;
                 }
-                if(!bBT) cmd->tickCount = (entsim)/ perTick;
+                if (bBT) {
+                    cmd->tickCount = backtrack[0].tick;
+                    cmd->viewangles.pitch = (180.f * (-atan((backtrack[0].position.z - PlayerPos.z) / (backtrack[0].magnitude))) / PI) - (2.f * punchAngle.pitch);
+                    cmd->viewangles.yaw = 180.f * (atan2(backtrack[0].position.y - PlayerPos.y, backtrack[0].position.x - PlayerPos.x)) / PI - (2.f * punchAngle.yaw);
+                    cmd->buttons |= IN_ATTACK;
+                }
+                if(!bBT) cmd->tickCount = TIME_TO_TICKS(entsim);
             }
             else if((*(float*)(wepEntity + m_flNextPrimaryAttack)) > (float)*(int*)(localPlayer + m_nTickBase) * perTick) {
                 cmd->buttons &= ~IN_ATTACK; // "hide shot" 
             }
         }
-    }
-    if (cmd->buttons & IN_ATTACK || cmd->buttons & IN_ATTACK2) {
-        bInAttack = 1;
-    }
-    else {
-        bInAttack = 0;
     }
     clamp89(cmd->viewangles.pitch);
     clamp180(cmd->viewangles.yaw); // prevent untrusted 
@@ -200,7 +182,6 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
         *(float*)(localPlayer + 0x31EC) = cmdView.yaw;
     }
     FixMovement(cmd, EngineClient, ViewAngles); // if this is removed we cannot move where we are looking
-    if(!bBT) cmd->tickCount += lerp + netchan->GetLatency(FLOW_INCOMING | FLOW_OUTGOING) / perTick; // lag comp :D
     if (GetAsyncKeyState(0x58)) cmd->commandNumber = INT_MAX;
     return false;
 }
@@ -248,21 +229,22 @@ bool __fastcall hkWriteUsercmdDelta(void* ecx, void* edx, int nSlot, void* buf) 
 
 void __fastcall hkPaint(void* ecx, void* edx, PaintMode_t mode) {
     static bool bInit = 0;
-    if (bInit == 0) fontInit(Tahoma, "Tahoma", bInit);
+    if (bInit == 0) {
+        fontInit(HFIndicators, "Tahoma", bInit);
+        fontInit(HFMenuTitle, "Consolas", bInit);
+        fontInit(HFMenuSubsections, "Consolas", bInit);
+        fontInit(HFMenuSliders, "Consolas", bInit);
+    }
     int screenWidth;
     int screenHeight;
     EngineClient->GetScreenSize(screenWidth, screenHeight);
     if (GetAsyncKeyState(0x5A) & 1) fLoadSkybox("sky_lunacy");
-    if(mode)startDrawing(surface);
-    if (mode & PAINT_INGAMEPANELS) {
-        if (bBhop) drawText(Tahoma, 5, 350, (const wchar_t*)L"BHOP", green, 24, "Tahoma"); else { drawText(Tahoma, 5, 350, (const wchar_t*)L"BHOP", red, 24, "Tahoma"); }
-        if (bEsp) drawText(Tahoma, 5, 370, (const wchar_t*)L"ESP", green, 24, "Tahoma"); else { drawText(Tahoma, 5, 370, (const wchar_t*)L"ESP", red, 24, "Tahoma"); }
-        if (bBT) drawText(Tahoma, 5, 390, (const wchar_t*)L"BACKTRACK", green, 24, "Tahoma"); else { drawText(Tahoma, 5, 390, (const wchar_t*)L"BACKTRACK", red, 24, "Tahoma"); }
-        if (bAimbot) drawText(Tahoma, 5, 410, (const wchar_t*)L"AIMBOT", green, 24, "Tahoma"); else { drawText(Tahoma, 5, 410, (const wchar_t*)L"AIMBOT", red, 24, "Tahoma"); }
-        if (bAA) drawText(Tahoma, 5, 430, (const wchar_t*)L"ANTI-AIM", green, 24, "Tahoma"); else { drawText(Tahoma, 5, 430, (const wchar_t*)L"ANTI-AIM", red, 24, "Tahoma"); }
+    if (mode & PAINT_UIPANELS) {
+        startDrawing(surface);
+        DrawMenu();
+        DrawIndicators();
+        finishDrawing(surface);
     }
-    DrawMenu(mode);
-    finishDrawing(surface);
     fPaint(ecx, edx, mode);
 }
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <includes.h>
+#include "includes.h"
 
 class NetVarManager
 {
@@ -41,7 +41,7 @@ public:
 				pProperty->m_pDataTable != nullptr &&
 				pProperty->m_pDataTable->m_pNetTableName[0] == 'D')
 			{
-				DumpRecursive(pProperty->m_pDataTable); // make threaded or async
+				DumpRecursive(pProperty->m_pDataTable);
 			}
  
 			std::string strHash = pTable->m_pNetTableName;
@@ -68,22 +68,21 @@ public:
 	return *reinterpret_cast<type*>(uintptr_t(this) + offset); \
 }
 
-/*
 class Player {
-	NETVAR(m_fFlags, float, "DT_BasePlayer->m_fFlags")
-}
+public:
+	NETVAR(m_vecOrigin, Vector3, "DT_BasePlayer->m_vecOrigin")
+	NETVAR(m_vecVelocity, Vector3, "DT_BasePlayer->m_vecVelocity")
+	NETVAR(m_vecViewOffset, Vector3, "DT_BasePlayer->m_vecViewOffset")
+	NETVAR(m_fFlags, int, "DT_BasePlayer->m_fFlags")
+};
 
 // Gettings offsets from class
-((Player*)local_player)->m_fFlags();
-*/
-
-
+//((Player*)local_player)->m_fFlags();
+// 
 	//CBasePlayer is DT_BasePlayer
 	//CCSPlayer is DT_CSPlayer
 //m_iHealth + NetVarManager::Get().GetOffset("DT_BasePlayer->m_fFlags");
 // problems EVERYTHING ITS ALL FUCKING FUCKED THE m_Collision DOESNT HAVE ANYTHING ITS THE WRONG OFFSET, THE FUCKING LOCAL PLAYER PLUS BULLSHIT DOESNT WORK AND THE FIRST SHIT AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-
-
 
 //Get().GetOffset("DT_BasePlayer->m_fFlags");
 //Get().GetOffset("DT_CSPlayer->m_ArmorValue");

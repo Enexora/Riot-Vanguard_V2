@@ -1,6 +1,5 @@
 #pragma once
-#include <includes.h>
-
+#include "includes.h"
 #define perTick 0.015625f
 #define FL_ONGROUND (1<<0)
 
@@ -179,51 +178,25 @@ tCreateMove fCreateMove;
 using tOverrideView = void(__fastcall*)(void*,void*,CViewSetup*);
 tOverrideView fOverrideView;
 
-class CGlobals
-{
+class CGlobals {
 public:
-	CGlobals(bool bIsClient);
-	// This can be used to filter debug output or to catch the client or server in the act.
-	bool IsClient() const;
-	inline bool IsRemoteClient() const;
-	// for encoding m_flSimulationTime, m_flAnimTime
-	int GetNetworkBase(int nTick, int nEntity);
-public:
-	// Absolute time (per frame still - Use Plat_FloatTime() for a high precision real time 
-	//  perf clock, but not that it doesn't obey host_timescale/host_framerate)
-	float			realtime;
-	// Absolute frame counter - continues to increase even if game is paused
-	int				framecount;
-	// Non-paused frametime
-	float			absoluteframetime;
-	float			absoluteframestarttimestddev;
-	float			curtime;
-	// Time spent on last server or client frame (has nothing to do with think intervals)
-	float			frametime;
-	// current maxplayers setting
-	int				maxClients;
-	// Simulation ticks - does not increase when game is paused
-	int				tickcount;
-	// Simulation tick interval
-	float			interval_per_tick;
-	// interpolation amount ( client-only ) based on fraction of next tick which has elapsed
-	float			interpolation_amount;
-	int				simTicksThisFrame;
-	int				network_protocol;
-	// current saverestore data
-	int*			pSaveData;
-private:
-	// Set to true in client code.
-	bool			m_bClient;
-public:
-	// true if we are a remote clinet (needs prediction & interpolation - server not on this machine) as opposed to split-screen or local
-	bool			m_bRemoteClient;
-private:
-	// 100 (i.e., tickcount is rounded down to this base and then the "delta" from this base is networked
-	int				nTimestampNetworkingBase;
-	// 32 (entindex() % nTimestampRandomizeWindow ) is subtracted from gpGlobals->tickcount to set the networking basis, prevents
-	//  all of the entities from forcing a new PackedEntity on the same tick (i.e., prevents them from getting lockstepped on this)
-	int				nTimestampRandomizeWindow;
+	float        realtime;
+	int            frame_count;
+	float        absolute_frametime;
+	float        absolute_frame_start_time;
+	float        cur_time;
+	float        frame_time;
+	int            max_clients;
+	int            tick_count;
+	float        interval_per_tick;
+	float        interpolation_amount;
+	int            sim_ticks_this_frame;
+	int            network_protocol;
+	void* p_save_data;
+	bool        is_client;
+	bool        is_remote_client;
+	int            timestamp_networking_base;
+	int            timestamp_randomize_window;
 };
 
 class ITexture;
@@ -428,22 +401,6 @@ public:
 	// creates an empty handle to a vgui font.  windows fonts can be add to this via SetFontGlyphSet().
 
 	// adds to the font
-	enum EFontFlags
-	{
-		FONTFLAG_NONE,
-		FONTFLAG_ITALIC = 0x001,
-		FONTFLAG_UNDERLINE = 0x002,
-		FONTFLAG_STRIKEOUT = 0x004,
-		FONTFLAG_SYMBOL = 0x008,
-		FONTFLAG_ANTIALIAS = 0x010,
-		FONTFLAG_GAUSSIANBLUR = 0x020,
-		FONTFLAG_ROTARY = 0x040,
-		FONTFLAG_DROPSHADOW = 0x080,
-		FONTFLAG_ADDITIVE = 0x100,
-		FONTFLAG_OUTLINE = 0x200,
-		FONTFLAG_CUSTOM = 0x400,        // custom generated font - never fall back to asian compatibility mode
-		FONTFLAG_BITMAP = 0x800,        // compiled bitmap font - no fallbacks
-	};
 };
 
 using tStartDrawing = void(__thiscall*)(void*);

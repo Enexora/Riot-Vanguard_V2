@@ -96,6 +96,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ExceptionHandling>false</ExceptionHandling>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -113,6 +114,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <ExceptionHandling>false</ExceptionHandling>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -160,6 +162,7 @@
     <ClInclude Include="csgo.hpp" />
     <ClInclude Include="sdk\enums.h" />
     <ClInclude Include="sdk\math\math.h" />
+    <ClInclude Include="sdk\patternscanningIDA.h" />
     <ClInclude Include="sdk\recv.h" />
     <ClInclude Include="sdk\netvar.h" />
     <ClInclude Include="hooks.cpp" />

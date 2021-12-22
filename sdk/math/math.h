@@ -1,4 +1,7 @@
 ﻿
+#define TICK_INTERVAL        ( 1/64 )
+#define TIME_TO_TICKS( dt )    ( (int)( (float)(dt) / TICK_INTERVAL ) )
+#define TICKS_TO_TIME( t )    ( TICK_INTERVAL * ( t ) )
 
 struct Vector3 {
 	float x;

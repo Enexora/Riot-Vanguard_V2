@@ -1,27 +1,22 @@
 // dllmain.cpp : Defines the entry point for the DLL application.
 
-#include <includes.h>
+#include "includes.h"
 
 DWORD WINAPI bhop(HMODULE hModule) {
     DWORD ulOldProtect[5];
-
-    [=]()->void {
-        client = (DWORD)GetModuleHandle("client.dll");
-        engine = (DWORD)GetModuleHandle("engine.dll");
-        vguimatsurface = (DWORD)GetModuleHandle("vguimatsurface.dll");
-        finishDrawing = (tFinishDrawing)(vguimatsurface + 0xD560);
-        startDrawing = (tStartDrawing)(vguimatsurface + 0xD380);
-        clientMode = **(ClientModeShared***)((*(uintptr_t**)(pClientDLL))[10] + 0x5);
-        input = *(CInput**)((*(DWORD**)pClientDLL)[16] + 1);
-        globals = *(CGlobals**)((*(DWORD**)pClientDLL)[0] + 0x1F);
-        netchan = EngineClient->GetNetChannelInfo();
-
-        // Dumping netvars
-        for (auto pClass = pClientDLL->GetAllClasses(); pClass; pClass = pClass->m_pNext)
-            if (pClass->m_pRecvTable)
-                NetVarManager::Get().DumpRecursive(pClass->m_pRecvTable); // make threaded or async
-    }();
-
+    client = (DWORD)GetModuleHandle("client.dll");
+    engine = (DWORD)GetModuleHandle("engine.dll");
+    vguimatsurface = (DWORD)GetModuleHandle("vguimatsurface.dll");
+    finishDrawing = (tFinishDrawing)(vguimatsurface + 0xD560);
+    startDrawing = (tStartDrawing)(vguimatsurface + 0xD380);
+    clientMode = **(ClientModeShared***)((*(uintptr_t**)(pClientDLL))[10] + 0x5);
+    input = *(CInput**)((*(DWORD**)pClientDLL)[16] + 1);
+    Globals = *(CGlobals**)((*(DWORD**)pClientDLL)[0] + 0x1F);
+    netchan = EngineClient->GetNetChannelInfo();
+    // Dumping netvars
+    for (auto pClass = pClientDLL->GetAllClasses(); pClass; pClass = pClass->m_pNext) {
+        if (pClass->m_pRecvTable) NetVarManager::Get().DumpRecursive(pClass->m_pRecvTable);
+    }
     fCL_SendMove = (tSendMove)(engine + 0xD9160);
     VirtualProtect((void*)input, 0xF00, PAGE_EXECUTE_READWRITE, &ulOldProtect[0]);
     VirtualProtect(*(void**)engineVGui, 0xF00, PAGE_EXECUTE_READWRITE, &ulOldProtect[3]);
@@ -31,27 +26,19 @@ DWORD WINAPI bhop(HMODULE hModule) {
     VirtualProtect(SendPacket, sizeof(SendPacket), PAGE_EXECUTE_READWRITE, 0);
     VirtualProtect((void*)vtable, 0x400, PAGE_EXECUTE_READWRITE, &ulOldProtect[1]);
     VirtualProtect(*(void**)surface, 0xA00, PAGE_EXECUTE_READWRITE, &ulOldProtect[4]);
-    Detour((DWORD*)(engine + 0xD947F), hkSendMove);
+    //Detour((DWORD*)(engine + 0xD947F), hkSendMove);
     fCreateMove = (tCreateMove)*(DWORD*)(vtable + 24*sizeof(void*));
     fLoadSkybox = (tLoadSkybox)(engine + 0x131720);
     fPaint = (tPaint)*(DWORD*)((*(DWORD*)engineVGui) + (14 * sizeof(void*)));
     //fWriteUsercmdDelta = (tWriteUsercmdDelta)*(DWORD*)(**(DWORD**)(pClientDLL) + (22 * sizeof(void*))); // index 22
     fOverrideView = (tOverrideView)*(DWORD*)(vtable + 18*sizeof(void*));
     fLockCursor = (tLockCursor)*(DWORD*)((*(DWORD*)surface) + 67 * sizeof(void*));
-    //*(DWORD*)((*(DWORD*)pClientDLL) + (22 * sizeof(void*))) = (DWORD)&hkWriteUsercmdDelta;
+    *(DWORD*)((*(DWORD*)surface) + 67 * sizeof(void*)) = (DWORD)&hkLockCursor;
     *(DWORD*)((*(DWORD*)engineVGui) + (14 * sizeof(void*))) = (DWORD)&hkPaint;
     *(DWORD*)(vtable + 24*sizeof(void*)) = (DWORD)&hkCreateMove;
     *(DWORD*)(vtable + 18*sizeof(void*)) = (DWORD)&hkOverrideView;
     EngineClient->ClientCmdUnrestricted("playvol ambient/flamenco.wav .25");
     while (!GetAsyncKeyState(VK_END)){
-        DWORD glowObj = *(DWORD*)(client + dwGlowObjectManager);
-        localPlayer = *(DWORD*)(client + dwLocalPlayer);
-        DWORD* plocalPlayer = (DWORD*)(client + dwLocalPlayer);
-        if (!EngineClient->IsInGame()) continue;
-        if (localPlayer == NULL) continue;
-        if (EngineClient->GetNetChannelInfo() != netchan) {
-            netchan = EngineClient->GetNetChannelInfo();
-        }
         toggle(bAA, VK_NUMPAD5);
         toggle(bBhop, VK_NUMPAD1);
         toggle(bAimbot, VK_NUMPAD4);
@@ -61,6 +48,15 @@ DWORD WINAPI bhop(HMODULE hModule) {
         if (GetAsyncKeyState(VK_NUMPAD0) & 1) {
             toggleAll();
         }
+        DWORD glowObj = *(DWORD*)(client + dwGlowObjectManager);
+        localPlayer = *(DWORD*)(client + dwLocalPlayer);
+        Player* plocalPlayer = (Player*)(client + dwLocalPlayer);
+        if (!EngineClient->IsInGame()) continue;
+        if (localPlayer == NULL) continue;
+        if (EngineClient->GetNetChannelInfo() != netchan) {
+            netchan = EngineClient->GetNetChannelInfo();
+        }
+
         DWORD flags = *(int*)(localPlayer + m_fFlags);
         for (int i = 0; i < 64; i++) {
             DWORD ent = *(DWORD*)(client + dwEntityList + i * 0x10);
@@ -94,7 +90,6 @@ DWORD WINAPI bhop(HMODULE hModule) {
     toggleAll();
     *SendPacket = true;
     *(DWORD*)((*(DWORD*)engineVGui) + (14 * sizeof(void*))) = (DWORD)fPaint;
-    //*(DWORD*)((*(DWORD*)pClientDLL) + (22 * sizeof(void*))) = (DWORD)fWriteUsercmdDelta;
     *(DWORD*)((*(DWORD*)surface) + 67 * sizeof(void*)) = (DWORD)fLockCursor;
     *(DWORD*)(vtable + 24 * sizeof(void*)) = (DWORD)fCreateMove;
     *(DWORD*)(vtable + 18 * sizeof(void*)) = (DWORD)fOverrideView;
