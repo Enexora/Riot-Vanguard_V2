@@ -12,10 +12,12 @@ btRecord sBacktrack[11];
 int bestTarget = 0;
 
 void resetRecords(bool& shouldReset, btRecord backtrack[11]) {
-	for (int i = 0; i < 11; i++) {
-		backtrack[i].tick = 0;
-		backtrack[i].magnitude = 0;
-		backtrack[i].position = { 0,0,0 };
+	if (shouldReset) {
+		for (int i = 0; i < 11; i++) {
+			backtrack[i].tick = 0;
+			backtrack[i].magnitude = 0;
+			backtrack[i].position = { 0,0,0 };
+		}
 	}
 	shouldReset = 0;
 }

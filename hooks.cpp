@@ -43,14 +43,14 @@ void SlowWalk(CUserCmd* cmd, float forwardSpeed, float sideSpeed) {
 static QAngle cmdView = { 0,0,0 };
 bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd* cmd) {
     ClientState = *(DWORD*)(engine + dwClientState);
-    if (!EngineClient->IsInGame()) return false;
+    static bool shouldResetbtRecords = 1;
+    if (!EngineClient->IsInGame()) { return fCreateMove(ecx, edx, flSampleTimer, cmd); shouldResetbtRecords = 1; }
     static bool shotLast = 1;
     static btRecord backtrack[11] = { 0, 0, {0,0,0} };
     static int btIndex = 0;
     static int trollEnt = 0;
     localPlayer = *(DWORD*)(client + dwLocalPlayer);
     static int btTick = 0;
-    static bool shouldResetbtRecords = 1;
     if (localPlayer == NULL) return false;
     DWORD flags = *(int*)(localPlayer + m_fFlags);
     ViewAngles = *(QAngle*)(ClientState + dwClientState_ViewAngles);
@@ -60,7 +60,6 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
             cmd->buttons &= ~IN_JUMP;
         }
     }
-    if (!EngineClient->IsInGame()) shouldResetbtRecords = 1;
     if (shouldResetbtRecords && EngineClient->IsInGame()) {
         resetRecords(shouldResetbtRecords, backtrack);
     }
@@ -136,7 +135,7 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
         SlowWalk(cmd, forwardSpeed, sideSpeed);
     }
     cmd->buttons |= IN_BULLRUSH;
-    if(bAA && *(int*)(localPlayer + m_iHealth) > 0) { AntiAim::desync::jitter(cmd, prevAngles, !(flags & FL_ONGROUND)); } // ANTIAIM
+    if(bAA && *(int*)(localPlayer + m_iHealth) > 0) { AntiAim::desync::helicopterFast(cmd, prevAngles, !(flags & FL_ONGROUND)); } // ANTIAIM
     else {
         *SendPacket = 1;
     }
