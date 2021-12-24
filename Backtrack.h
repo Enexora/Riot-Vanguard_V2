@@ -36,6 +36,5 @@ void Backtrack(CUserCmd* cmd, btRecord backtrack, int index, Vector3 PlayerPos, 
 			}
 		}
 	}
-	cmd->tickCount = sBacktrack[bestTarget].tick;
 	oldAngles.yaw = 1800000.f;
 }
