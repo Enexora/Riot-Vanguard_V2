@@ -7,6 +7,13 @@ struct Vector3 {
 	float x;
 	float y;
 	float z;
+	Vector3 operator+=(Vector3 inc) {
+		Vector3 clone = { x, y, z };
+		clone.x += inc.x;
+		clone.y += inc.y;
+		clone.z += inc.z;
+		return clone;
+	}
 };
 
 struct QAngle {
