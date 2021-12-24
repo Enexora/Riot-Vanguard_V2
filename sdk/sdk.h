@@ -6,7 +6,6 @@
 #include "math/math.h"
 #include "enums.h"
 #include "recv.h"
-#include "netvar.h"
 
 typedef void* (__cdecl* tCreateInterface)(const char* name, int* returnCode);
 

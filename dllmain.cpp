@@ -26,11 +26,9 @@ DWORD WINAPI bhop(HMODULE hModule) {
     VirtualProtect(SendPacket, sizeof(SendPacket), PAGE_EXECUTE_READWRITE, 0);
     VirtualProtect((void*)vtable, 0x400, PAGE_EXECUTE_READWRITE, &ulOldProtect[1]);
     VirtualProtect(*(void**)surface, 0xA00, PAGE_EXECUTE_READWRITE, &ulOldProtect[4]);
-    //Detour((DWORD*)(engine + 0xD947F), hkSendMove);
     fCreateMove = (tCreateMove)*(DWORD*)(vtable + 24*sizeof(void*));
     fLoadSkybox = (tLoadSkybox)(engine + 0x131720);
     fPaint = (tPaint)*(DWORD*)((*(DWORD*)engineVGui) + (14 * sizeof(void*)));
-    //fWriteUsercmdDelta = (tWriteUsercmdDelta)*(DWORD*)(**(DWORD**)(pClientDLL) + (22 * sizeof(void*))); // index 22
     fOverrideView = (tOverrideView)*(DWORD*)(vtable + 18*sizeof(void*));
     fLockCursor = (tLockCursor)*(DWORD*)((*(DWORD*)surface) + 67 * sizeof(void*));
     *(DWORD*)((*(DWORD*)surface) + 67 * sizeof(void*)) = (DWORD)&hkLockCursor;
@@ -50,16 +48,17 @@ DWORD WINAPI bhop(HMODULE hModule) {
         }
         DWORD glowObj = *(DWORD*)(client + dwGlowObjectManager);
         localPlayer = *(DWORD*)(client + dwLocalPlayer);
-        Player* plocalPlayer = (Player*)(client + dwLocalPlayer);
+        plocalPlayer = *(Player**)(client + dwLocalPlayer);
         if (!EngineClient->IsInGame()) continue;
         if (localPlayer == NULL) continue;
         if (EngineClient->GetNetChannelInfo() != netchan) {
             netchan = EngineClient->GetNetChannelInfo();
         }
         for (int i = 0; i < 64; i++) {
-            DWORD ent = *(DWORD*)(client + dwEntityList + i * 0x10);
+            Player* ent = *(Player**)(client + dwEntityList + i * 0x10);
                 if (ent == NULL) continue;
                 if (*(int*)(ent + m_iTeamNum) != *(int*)(localPlayer + m_iTeamNum)) *(bool*)(ent + m_bSpotted) = true;
+                //if (ent != plocalPlayer) ent->m_angEyeAngles()->yaw = ent->m_flLowerBodyYawTarget();
                 if(bEsp){
                 int glowIndex = *(int*)(ent + m_iGlowIndex);
                 if (*(int*)(ent + m_iTeamNum) != *(int*)(localPlayer + m_iTeamNum)) {

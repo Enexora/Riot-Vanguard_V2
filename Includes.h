@@ -16,6 +16,7 @@
 #include <vector>
 #include "sdk/sdk.h"
 #include "csgo.hpp"
+#include "sdk/netvar.h"
 
 
 IEngineClient* EngineClient = (IEngineClient*)GetInterface("engine.dll", "VEngineClient014");

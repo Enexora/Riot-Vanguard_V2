@@ -54,7 +54,6 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
     if (localPlayer == NULL) return false;
     DWORD flags = *(int*)(localPlayer + m_fFlags);
     ViewAngles = *(QAngle*)(ClientState + dwClientState_ViewAngles);
-    QAngle punchAngle = *(QAngle*)(localPlayer + m_aimPunchAngle);
     if (bBhop == true) {
         if (cmd->buttons & IN_JUMP && !(flags & FL_ONGROUND)) {
             cmd->buttons &= ~IN_JUMP;
@@ -63,24 +62,23 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
     if (shouldResetbtRecords && EngineClient->IsInGame()) {
         resetRecords(shouldResetbtRecords, backtrack);
     }
-    DWORD initWep = *(DWORD*)(localPlayer + m_hActiveWeapon) & 0xFFF;
-    DWORD wepEntity = *(DWORD*)(client + dwEntityList + (initWep - 1) * 0x10);
     float sideSpeed = cmd->sidemove;
     float forwardSpeed = cmd->forwardmove;
-    Vector3 PlayerPos = *(Vector3*)(localPlayer + m_vecOrigin);
+    Vector3 PlayerPos = plocalPlayer->m_vecOrigin();
+    WeaponEntity* wepEntity = *(WeaponEntity**)(client + dwEntityList + ((plocalPlayer->m_hActiveWeapon() & 0xFFF) - 1) * 0x10);
     static float entsim;
     static float bestMagnitude;
     static Vector3 bombAssHead;
     Vector3 entHPos;
-    for (int i = 0; i < 64; i++) {                                                                              // Ent list for aimbot
-            DWORD ent = *(DWORD*)(client + dwEntityList + i * 0x10);
+    for (int i = 0; i < 64; i++) {                                                       // Ent list for aimbot
+            Player* ent = *(Player**)(client + dwEntityList + i * 0x10);
             if (ent == NULL) {
                 aimbotAngles = ViewAngles;
                 continue;
             }
-            entHPos = *(Vector3*)(ent + m_vecOrigin);
+            entHPos = ent->m_vecOrigin();
             Vector3 entVelocity = *(Vector3*)(ent + m_vecVelocity);
-            PlayerPos = *(Vector3*)(localPlayer + m_vecOrigin);
+            PlayerPos = plocalPlayer->m_vecOrigin();
             float trollmagnitude = sqrt(((entHPos.x - PlayerPos.x) * (entHPos.x - PlayerPos.x)) + ((entHPos.y - PlayerPos.y) * (entHPos.y - PlayerPos.y)));
             if(*(int*)(localPlayer + m_iCrosshairId) != 0){
                 if (GetAsyncKeyState(0x54) & 1) {
@@ -97,7 +95,7 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
             entHPos.z = *(float*)(*(DWORD*)(ent + m_dwBoneMatrix) + 0x30 * 8 + 0x2C);
             PlayerPos.z += *(float*)(localPlayer + m_vecViewOffset + 0x8);
             if (bAimbot == true) {
-            if (*(bool*)(ent + m_bDormant) == 1 || ent == localPlayer || *(int*)(ent + m_iTeamNum) == *(int*)(localPlayer + m_iTeamNum)) {
+            if (*(bool*)(ent + m_bDormant) == 1 || ent == plocalPlayer || *(int*)(ent + m_iTeamNum) == *(int*)(localPlayer + m_iTeamNum)) {
                 aimbotAngles = ViewAngles;
                 continue;
             }
@@ -109,8 +107,8 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
             if (magnitude == 0) {
                 continue;
             }
-            aimbotAngles.pitch = CalcAngle(PlayerPos, entHPos, magnitude, punchAngle).pitch;
-            aimbotAngles.yaw = CalcAngle(PlayerPos, entHPos, magnitude, punchAngle).yaw;
+            aimbotAngles.pitch = CalcAngle(PlayerPos, entHPos, magnitude, plocalPlayer->m_aimPunchAngle()).pitch;
+            aimbotAngles.yaw = CalcAngle(PlayerPos, entHPos, magnitude, plocalPlayer->m_aimPunchAngle()).yaw;
             clamp89(aimbotAngles.pitch);
             clamp180(aimbotAngles.yaw);
             if (IsCloser(prevAngles, aimbotAngles, ViewAngles)) {
@@ -122,12 +120,12 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
         }
     }
     if (bBT) {
-        if (TIME_TO_TICKS(entsim) > backtrack[btIndex - 1].tick && AngleIsWithin(ViewAngles, CalcAngle(PlayerPos, bombAssHead, bestMagnitude, punchAngle), fovAimbot + 5.f)) {
+        if (TIME_TO_TICKS(entsim) > backtrack[btIndex - 1].tick && AngleIsWithin(ViewAngles, CalcAngle(PlayerPos, bombAssHead, bestMagnitude, plocalPlayer->m_aimPunchAngle()), fovAimbot + 5.f)) {
             if (btIndex >= 11) btIndex = 0;
             backtrack[btIndex].tick = TIME_TO_TICKS(entsim);
             backtrack[btIndex].magnitude = bestMagnitude;
             backtrack[btIndex].position = bombAssHead;
-            Backtrack(cmd, backtrack[btIndex], btIndex, PlayerPos, ViewAngles, punchAngle, 0);
+            Backtrack(cmd, backtrack[btIndex], btIndex, PlayerPos, ViewAngles, plocalPlayer->m_aimPunchAngle(), 0);
             btIndex = btIndex >= 11 ? 0 : btIndex + 1;
         }
     }
@@ -142,17 +140,21 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
     if (bMenuOpen && (cmd->buttons & IN_ATTACK)) {
         cmd->buttons &= ~IN_ATTACK;
     }
-
+    if (wepEntity) {
+        if (wepEntity->m_flNextPrimaryAttack() > TICKS_TO_TIME(plocalPlayer->m_nTickBase())) {
+            cmd->buttons &= ~IN_ATTACK;
+        }
+    }
     if (cmd->buttons & IN_ATTACK || cmd->buttons & IN_ATTACK2 || cmd->buttons & IN_USE) {
         cmd->viewangles.pitch = clamp89(ViewAngles.pitch);
         cmd->viewangles.yaw = clamp180(ViewAngles.yaw);
-        if (bBT) {
+        if (bBT && *(int*)(localPlayer + m_iHealth) > 0 && &sBacktrack[bestTarget]) {
             cmd->tickCount = sBacktrack[bestTarget].tick;
         }
     }
-    if ((GetAsyncKeyState(VK_XBUTTON2)) && (AngleIsWithin(ViewAngles, prevAngles, fovAimbot) || AngleIsWithin(ViewAngles, CalcAngle(PlayerPos, sBacktrack[bestTarget].position, bestMagnitude, punchAngle), fovAimbot)) && bAimbot == true) {
+    if ((GetAsyncKeyState(VK_XBUTTON2)) && (AngleIsWithin(ViewAngles, prevAngles, fovAimbot) || AngleIsWithin(ViewAngles, CalcAngle(PlayerPos, sBacktrack[bestTarget].position, bestMagnitude, plocalPlayer->m_aimPunchAngle()), fovAimbot)) && bAimbot == true) {
         if (wepEntity != NULL) {
-            if ((*(float*)(wepEntity + m_flNextPrimaryAttack)) <= (float)*(int*)(localPlayer + m_nTickBase) * perTick) {
+            if (wepEntity->m_flNextPrimaryAttack() <= TICKS_TO_TIME(plocalPlayer->m_nTickBase()) || wepEntity->m_iBurstShotsRemaining() > 0) {
                 if (bAA) {
                     if (!bBT) {
                         cmd->viewangles.pitch = clamp89(prevAngles.pitch);
@@ -167,18 +169,14 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
                     *SendPacket = 0;
                 }
                 if (bBT) {
-                    Backtrack(cmd, backtrack[btIndex], btIndex, PlayerPos, ViewAngles, punchAngle, 1);
-                    if (AngleIsWithin(ViewAngles, CalcAngle(PlayerPos, sBacktrack[bestTarget].position, sBacktrack[bestTarget].magnitude, punchAngle), fovAimbot)) {
-                        cmd->viewangles.pitch = CalcAngle(PlayerPos, sBacktrack[bestTarget].position, sBacktrack[bestTarget].magnitude, punchAngle).pitch;
-                        cmd->viewangles.yaw = CalcAngle(PlayerPos, sBacktrack[bestTarget].position, sBacktrack[bestTarget].magnitude, punchAngle).yaw;
+                    Backtrack(cmd, backtrack[btIndex], btIndex, PlayerPos, ViewAngles, plocalPlayer->m_aimPunchAngle(), 1);
+                    if (AngleIsWithin(ViewAngles, CalcAngle(PlayerPos, sBacktrack[bestTarget].position, sBacktrack[bestTarget].magnitude, plocalPlayer->m_aimPunchAngle()), fovAimbot)) {
+                        cmd->viewangles.pitch = CalcAngle(PlayerPos, sBacktrack[bestTarget].position, sBacktrack[bestTarget].magnitude, plocalPlayer->m_aimPunchAngle()).pitch;
+                        cmd->viewangles.yaw = CalcAngle(PlayerPos, sBacktrack[bestTarget].position, sBacktrack[bestTarget].magnitude, plocalPlayer->m_aimPunchAngle()).yaw;
                         cmd->buttons |= IN_ATTACK;
                     }
                     cmd->tickCount = sBacktrack[bestTarget].tick;
                 }
-                if(!bBT || bestTarget == (btTick - 1 + 10) % 12) cmd->tickCount = TIME_TO_TICKS(entsim);
-            }
-            else if((*(float*)(wepEntity + m_flNextPrimaryAttack)) > (float)*(int*)(localPlayer + m_nTickBase) * perTick) {
-                cmd->buttons &= ~IN_ATTACK; // "hide shot" 
             }
         }
     }
@@ -205,7 +203,15 @@ void __fastcall hkOverrideView(void* ecx, void* edx, CViewSetup* pSetup) {
         fOverrideView(ecx, edx, pSetup);
         return;
     }
+    WeaponEntity* wepEntity = *(WeaponEntity**)(client + dwEntityList + ((plocalPlayer->m_hActiveWeapon() & 0xFFF) - 1) * 0x10);
+    if (!wepEntity) {
+        fOverrideView(ecx, edx, pSetup);
+        return;
+    }
     pSetup->flFOV = gFov;
+    if (wepEntity->m_zoomLevel() == 2 && !bTP && wepEntity->m_flNextPrimaryAttack() <= TICKS_TO_TIME(plocalPlayer->m_nTickBase())) {
+        pSetup->flFOV = gFov / 2;
+    }
     QAngle ViewAngles = { 0,0,0 };
     EngineClient->GetViewAngles(ViewAngles);
     if (*(int*)(localPlayer + m_iHealth) <= 0) {
@@ -234,6 +240,7 @@ void __fastcall hkLockCursor(void* ecx, void* edx) {
 
 void __fastcall hkPaint(void* ecx, void* edx, PaintMode_t mode) {
     static bool bInit = 0;
+    WeaponEntity* wepEntity = *(WeaponEntity**)(client + dwEntityList + ((plocalPlayer->m_hActiveWeapon() & 0xFFF) - 1) * 0x10);
     if (bInit == 0) {
         fontInit(HFIndicators, "Tahoma", bInit);
         fontInit(HFMenuTitle, "Consolas", bInit);
@@ -247,9 +254,22 @@ void __fastcall hkPaint(void* ecx, void* edx, PaintMode_t mode) {
     if (mode & PAINT_UIPANELS) {
         startDrawing(surface);
         DrawMenu();
-        DrawIndicators();
+        if(EngineClient->IsInGame()) DrawIndicators();
+        if (wepEntity) {
+            if (wepEntity->m_zoomLevel() != 0 && wepEntity->m_flNextPrimaryAttack() <= TICKS_TO_TIME(plocalPlayer->m_nTickBase()) && wepEntity->isSniper()) {
+                surface->SetDrawColor(black);
+                surface->DrawLine(0, screenHeight/2, screenWidth, screenHeight/2);
+                surface->DrawLine(screenWidth/2, 0, screenWidth/2, screenHeight);
+            }
+        }
         finishDrawing(surface);
     }
-    fPaint(ecx, edx, mode);
+    if (!wepEntity) {
+        fPaint(ecx, edx, mode);
+        return;
+    }
+    if (wepEntity->m_zoomLevel() != 1 && mode & PAINT_UIPANELS) {
+        fPaint(ecx, edx, mode);
+    }
 }
 
