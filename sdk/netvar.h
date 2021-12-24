@@ -72,15 +72,23 @@ class Player {
 public:
 	NETVAR(m_vecOrigin, Vector3, "DT_BaseEntity->m_vecOrigin")
 	NETVAR(m_vecVelocity, Vector3, "DT_BasePlayer->m_vecVelocity")
+	NETVAR(m_iHealth, int, "DT_BasePlayer->m_iHealth")
 	QAngle m_aimPunchAngle() {
 		static uintptr_t offset1 = NetVarManager::Get().GetOffset("DT_Local->m_aimPunchAngle");
 		return *(QAngle*)(this + 0x2FCC + offset1);
 	}
+	QAngle* getLocalBullshitVisualAngle() {
+		static int offset = NetVarManager::Get().GetOffset("DT_BasePlayer->pl");
+		static int offset1 = NetVarManager::Get().GetOffset("DT_PlayerState->deadflag");
+		return (QAngle*)(this + offset + offset1 + 0x4);
+	}
+	PNETVAR(m_angEyeAngles, QAngle, "DT_CSPlayer->m_angEyeAngles")
+	NETVAR(m_iTeamNum, int, "DT_BaseEntity->m_iTeamNum")
 	NETVAR(m_bIsScoped, bool, "DT_CSPlayer->m_bIsScoped")
 	NETVAR(m_flLowerBodyYawTarget, float, "DT_CSPlayer->m_flLowerBodyYawTarget")
 	NETVAR(m_flSimulationTime, float, "DT_BaseEntity->m_flSimulationTime")
 	PNETVAR(m_iHideHud, int, "DT_Local->m_iHideHud")
-	NETVAR(m_vecViewOffset, Vector3, "DT_BasePlayer->m_vecViewOffset")
+	NETVAR(m_vecViewOffset, Vector3, "DT_LocalPlayerExclusive->m_vecViewOffset[0]")
 	PNETVAR(m_skybox3d_origin, Vector3,  "DT_Local->m_skybox3d.origin");
 	PNETVAR(m_skybox3d_scale, int,  "DT_Local->m_skybox3d.scale");
 	PNETVAR(m_angRotation, QAngle, "DT_BaseEntity->angRotation")
@@ -95,7 +103,7 @@ public:
 	NETVAR(m_zoomLevel, int, "DT_WeaponCSBaseGun->m_zoomLevel")
 	NETVAR(m_iBurstShotsRemaining, int, "DT_WeaponCSBaseGun->m_iBurstShotsRemaining")
 	NETVAR(m_flNextPrimaryAttack, float, "DT_LocalActiveWeaponData->m_flNextPrimaryAttack")
-	//NETVAR(m_iItemDefinitionIndex, int, "DT_ScriptCreatedItem->m_iItemDefinitionIndex")
+	NETVAR(m_flSimulationTime, float, "DT_BaseEntity->m_flSimulationTime")
 	int m_iItemDefinitionIndex() {
 		static int offset = NetVarManager::Get().GetOffset("DT_EconEntity->m_AttributeManager");
 		static int offset1 = NetVarManager::Get().GetOffset("DT_AttributeContainer->m_Item");
