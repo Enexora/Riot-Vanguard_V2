@@ -23,6 +23,7 @@ IEngineClient* EngineClient = (IEngineClient*)GetInterface("engine.dll", "VEngin
 IEngineVGui* engineVGui = (IEngineVGui*)GetInterface("engine.dll", "VEngineVGui001");
 IBaseClientDLL* pClientDLL = (IBaseClientDLL*)GetInterface("client.dll", "VClient018");
 ISurface* surface = (ISurface*)GetInterface("vguimatsurface.dll", "VGUI_Surface031");
+IClientEntityList* EntityList = (IClientEntityList*)GetInterface("client.dll", "VClientEntityList003");
 Player* plocalPlayer;
 DWORD client;
 DWORD engine;
@@ -31,7 +32,7 @@ DWORD ClientState;
 ClientModeShared* clientMode;
 INetChannelInfo* netchan;
 CInput* input;
-DWORD localPlayer;
+Player* localPlayer;
 CGlobals* Globals;
 byte* SendPacket;
 bool bInAttack = 0;
