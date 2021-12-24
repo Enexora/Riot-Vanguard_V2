@@ -28,6 +28,7 @@ Player* plocalPlayer;
 DWORD client;
 DWORD engine;
 DWORD vguimatsurface;
+QAngle ViewAngles;
 DWORD ClientState;
 ClientModeShared* clientMode;
 INetChannelInfo* netchan;
