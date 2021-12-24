@@ -2,8 +2,8 @@
 
 #include "includes.h"
 #include "menu/images/resource.h"
-#include "images/lodepng/lodepng.h"
-#include "images/lodepng/lodepng.cpp"
+//#include "menu/images/lodepng/lodepng.h"
+//#include "menu/images/lodepng/lodepng.cpp"
 
 bool bIndicators = 1;
 
