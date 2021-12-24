@@ -106,6 +106,7 @@ public:
         return (InRange(cursor.x, start.x, end.x) && InRange(cursor.y, start.y, end.y) && (GetAsyncKeyState(VK_LBUTTON) & 1));
     }
 };
+
 Button::Button (POINT mStart, POINT mEnd, POINT mCursor) {
     start = mStart;
     end = mEnd;
@@ -162,8 +163,8 @@ Slider::Slider(int mStartX, int mStartY, int mEndX, int mEndY, int mMultiplier, 
 }
 
 vgui::Color valred = { 255, 70, 84, 255};
-vgui::Color valblack = { 15, 24, 34, 255 };
-vgui::Color valgrey = { 27, 31, 36, 255 };
+vgui::Color valblack = { 27, 32, 42, 255 };
+vgui::Color valgrey = { 44, 48, 53, 255 };
 vgui::Color valwhite = { 236, 233, 225, 255 };
 
 
@@ -210,32 +211,37 @@ void DrawMenu()
     Button Indicators(menuOriginX + 20, menuOriginY + 65, menuOriginX + 40, menuOriginY + 85, cTemp);
     Slider fov(Indicators.start.x + 30, Indicators.start.y + 5, Indicators.start.x + 130, Indicators.start.y + 15, 170, gFov, cTemp);
     //draw main menu bg and outline
-    surface->SetDrawColor(white);
+    surface->SetDrawColor(valred);
     surface->DrawOutlinedRect(menuOriginX - 1, menuOriginY - 1, menuOriginX + menuWidth + 1, menuOriginY + 1 + menuHeight);
-    surface->SetDrawColor(dark_gray);
+    surface->SetDrawColor(valblack);
     surface->DrawFilledRect(menuOriginX, menuOriginY, menuOriginX + menuWidth, menuOriginY + menuHeight);
 
     //Header for general features
     drawText(HFMenuTitle, menuOriginX + 20, menuOriginY + 17, (const wchar_t*)L"General Toggles", white, 36, "Tahoma", 400);
 
     //draw indicators button and check for click
-    surface->SetDrawColor(black);
+    surface->SetDrawColor(valgrey);
     surface->DrawFilledRect(Indicators.start.x, Indicators.start.y, Indicators.end.x, Indicators.end.y); // drow bhop toggle button
+    surface->SetDrawColor(valwhite);
+    surface->DrawOutlinedRect(Indicators.start.x, Indicators.start.y, Indicators.end.x, Indicators.end.y);
     if (Indicators.click()) bIndicators = !bIndicators;
     if (bIndicators) {
         surface->SetDrawColor(white);
-        surface->DrawFilledRect(Indicators.start.x + 2, Indicators.start.y + 2, Indicators.end.x - 2, Indicators.end.y - 2); // drow bhop toggle button 
+        surface->DrawFilledRect(Indicators.start.x + 3, Indicators.start.y + 3, Indicators.end.x - 3, Indicators.end.y - 3); // drow bhop toggle button 
     }
 
     //draw fov slider
-    surface->SetDrawColor(red);
+
+    surface->SetDrawColor(valgrey);
+    surface->DrawFilledRect(fov.start.x, fov.start.y, fov.start.x + 100, fov.end.y);
+    surface->SetDrawColor(valred);
     surface->DrawFilledRect(fov.start.x, fov.start.y, fov.end.x, fov.end.y); // actual slider for fov
-    surface->SetDrawColor(white);
+    surface->SetDrawColor(valgrey);
     surface->DrawOutlinedRect(fov.start.x, fov.start.y, fov.start.x + 100, fov.end.y);
     if (fov.click() > .1f) {
         gFov = fov.click();
     }
     if (gFov <= 0) gFov = .1f;
-    drawText(HFMenuSliders, fov.start.x + 105, fov.start.y - 3, std::to_wstring((int)gFov).c_str(), white, 16); // text position is based from top left corner, slightly below it
+    drawText(HFMenuSliders, fov.start.x + 105, fov.start.y - 4, std::to_wstring((int)gFov).c_str(), white, 16); // text position is based from top left corner, slightly below it
 }   
 
