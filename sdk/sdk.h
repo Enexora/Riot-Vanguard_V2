@@ -215,9 +215,8 @@ public:
 	int            timestamp_networking_base;
 	int            timestamp_randomize_window;
 };
-
 class ITexture;
-
+const char* myArray[];
 namespace vgui
 {
 	class Vec2 {

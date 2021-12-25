@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "menu/menu.h"
 
 
@@ -133,11 +133,16 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
     if (GetAsyncKeyState(0x43)) {
         SlowWalk(cmd, forwardSpeed, sideSpeed);
     }
-    cmd->buttons |= IN_BULLRUSH;
-    if(bAA && localPlayer->m_iHealth() > 0) { AntiAim::desync::helicopterFast(cmd, prevAngles, !(flags & FL_ONGROUND)); } // ANTIAIM
+    if (bAA && localPlayer->m_iHealth() > 0) AntiAim::desync::helicopterFast(cmd, prevAngles, !(flags & FL_ONGROUND)); // ANTIAIM
     else {
         *SendPacket = 1;
     }
+    if (GetAsyncKeyState(VK_NUMPAD5)) {
+        using tSetClanTag = void(__fastcall*)(const char*, const char*);
+        static tSetClanTag SetClanTag = (tSetClanTag)(engine + dwSetClanTag);
+        SetClanTag(u8"⌠Vanguard⌡", "R Vanguard");
+    }
+
     if (bMenuOpen && (cmd->buttons & IN_ATTACK)) {
         cmd->buttons &= ~IN_ATTACK;
     }
@@ -146,11 +151,20 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
             cmd->buttons &= ~IN_ATTACK;
         }
     }
-    if (cmd->buttons & IN_ATTACK || cmd->buttons & IN_ATTACK2 || cmd->buttons & IN_USE) {
+    if (cmd->buttons & IN_ATTACK || cmd->buttons & IN_USE) {
         cmd->viewangles.pitch = clamp89(ViewAngles.pitch);
         cmd->viewangles.yaw = clamp180(ViewAngles.yaw);
         if (bBT && localPlayer->m_iHealth() > 0 && &sBacktrack[bestTarget]) {
             cmd->tickCount = sBacktrack[bestTarget].tick;
+        }
+    }
+    if (wepEntity) {
+        if (cmd->buttons & IN_ATTACK2 && wepEntity->m_iItemDefinitionIndex() == WEAPON_KNIFE || wepEntity->m_iItemDefinitionIndex() == WEAPON_REVOLVER) {
+            cmd->viewangles.pitch = clamp89(ViewAngles.pitch);
+            cmd->viewangles.yaw = clamp180(ViewAngles.yaw);
+            if (bBT && localPlayer->m_iHealth() > 0 && &sBacktrack[bestTarget]) {
+                cmd->tickCount = sBacktrack[bestTarget].tick;
+            }
         }
     }
     if ((GetAsyncKeyState(VK_XBUTTON2)) && (AngleIsWithin(ViewAngles, prevAngles, fovAimbot) || AngleIsWithin(ViewAngles, CalcAngle(PlayerPos, sBacktrack[bestTarget].position, bestMagnitude, localPlayer->m_aimPunchAngle()), fovAimbot)) && bAimbot == true) {
@@ -184,6 +198,7 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
     clamp89(cmd->viewangles.pitch);
     clamp180(cmd->viewangles.yaw); // prevent untrusted 
     prevAngles.yaw = 18000.f;
+    if (!bBT) cmd->tickCount += TIME_TO_TICKS(netchan->GetLatency(FLOW_OUTGOING));
     if (cmd->buttons & IN_ATTACK && bAA) *SendPacket = 1;
     if (*SendPacket) { // yes yes. we check if send packet or not and acccordingly setup our player rendering
         cmdView.pitch = cmd->viewangles.pitch;
@@ -209,7 +224,7 @@ void __fastcall hkOverrideView(void* ecx, void* edx, CViewSetup* pSetup) {
         return;
     }
     pSetup->flFOV = gFov;
-    if (wepEntity->m_zoomLevel() == 2) {
+    if (wepEntity->m_zoomLevel() == 2 && wepEntity->isSniper() == true) {
         if (wepEntity->m_flNextPrimaryAttack() <= TICKS_TO_TIME(localPlayer->m_nTickBase())) {
             pSetup->flFOV = gFov / 2;
         }
@@ -248,7 +263,7 @@ void __fastcall hkFrameStageNotify(void* ecx, void* edx, int stage) {
 void __fastcall hkPaint(void* ecx, void* edx, PaintMode_t mode) {
     static bool bInit = 0;
     WeaponEntity* wepEntity = nullptr;
-    if(localPlayer) wepEntity = *(WeaponEntity**)(client + dwEntityList + ((localPlayer->m_hActiveWeapon() & 0xFFF) - 1) * 0x10);
+    if (localPlayer) wepEntity = *(WeaponEntity**)(client + dwEntityList + ((localPlayer->m_hActiveWeapon() & 0xFFF) - 1) * 0x10);
     if (bInit == 0) {
         fontInit(HFIndicators, "Tahoma", bInit);
         fontInit(HFMenuTitle, "Consolas", bInit);
@@ -258,11 +273,13 @@ void __fastcall hkPaint(void* ecx, void* edx, PaintMode_t mode) {
     int screenWidth;
     int screenHeight;
     EngineClient->GetScreenSize(screenWidth, screenHeight);
-    if (GetAsyncKeyState(0x5A) & 1) fLoadSkybox("sky_lunacy");
+    startDrawing(surface);
+    if (GetAsyncKeyState(0x5A) & 1) {
+        fLoadSkybox("sky_lunacy");
+    }
     if (mode & PAINT_UIPANELS) {
-        startDrawing(surface);
         DrawMenu();
-        if(EngineClient->IsInGame()) DrawIndicators();
+        if (EngineClient->IsInGame()) DrawIndicators();
         if (wepEntity) {
             if (wepEntity->m_zoomLevel() != 0 && wepEntity->isSniper()) {
                 if (wepEntity->m_flNextPrimaryAttack() <= TICKS_TO_TIME(localPlayer->m_nTickBase()) || wepEntity->m_iItemDefinitionIndex() == WEAPON_SCAR20 || wepEntity->m_iItemDefinitionIndex() == WEAPON_G3SG1) {
@@ -272,14 +289,16 @@ void __fastcall hkPaint(void* ecx, void* edx, PaintMode_t mode) {
                 }
             }
         }
-        finishDrawing(surface);
     }
     if (!wepEntity) {
         fPaint(ecx, edx, mode);
+        finishDrawing(surface);
         return;
     }
     if (wepEntity->m_zoomLevel() != 1 && mode & PAINT_UIPANELS) {
         fPaint(ecx, edx, mode);
+        finishDrawing(surface);
     }
 }
+
 
