@@ -202,7 +202,7 @@ void DrawMenu()
     drawText(HFMenuTitle, 0, 800, (const wchar_t*)L"NIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGER", valwhite, 100, "Tahoma", 400);
     drawText(HFMenuTitle, 20, menuOriginY + 17, (const wchar_t*)L"General Toggles", valwhite, 36, "Tahoma", 400);
     Button Indicators(menuOriginX + 20, menuOriginY + 65, menuOriginX + 40, menuOriginY + 85, cTemp);
-    Button triggerbot(menuOriginX + 20, menuOriginY + 125, menuOriginX + 40, menuOriginY + 145, cTemp);
+    Button triggerbot(menuOriginX + 20, menuOriginY + 90, menuOriginX + 40, menuOriginY + 110, cTemp);
     Slider fov(Indicators.start.x + 30, Indicators.start.y + 5, Indicators.start.x + 130, Indicators.start.y + 15, 170, gFov, cTemp);
     //draw main menu bg and outline
     surface->SetDrawColor(valred);
@@ -236,7 +236,6 @@ void DrawMenu()
 
 
     //draw fov slider
-
     surface->SetDrawColor(valgrey);
     surface->DrawFilledRect(fov.start.x, fov.start.y, fov.start.x + 100, fov.end.y);
     surface->SetDrawColor(valred);
