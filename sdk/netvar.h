@@ -71,7 +71,6 @@ public:
 class Player {
 public:
 	NETVAR(m_vecOrigin, Vector3, "DT_BaseEntity->m_vecOrigin")
-	NETVAR(m_vecVelocity, Vector3, "DT_BasePlayer->m_vecVelocity")
 	NETVAR(m_iHealth, int, "DT_BasePlayer->m_iHealth")
 	int m_iCrosshairId() {
 		static uintptr_t offset1 = NetVarManager::Get().GetOffset("DT_CSPlayerResource->m_bHasDefuser");
@@ -95,6 +94,7 @@ public:
 		static int offset1 = NetVarManager::Get().GetOffset("DT_Local->m_skybox3d.origin");
 		return (Vector3*)(this + 0x2FCC + offset1);
 	}
+	NETVAR(m_vecVelocity, Vector3, "DT_LocalPlayerExclusive->m_vecVelocity[0]")
 	PNETVAR(m_angEyeAngles, QAngle, "DT_CSPlayer->m_angEyeAngles")
 	NETVAR(m_iTeamNum, int, "DT_BaseEntity->m_iTeamNum")
 	NETVAR(m_bIsScoped, bool, "DT_CSPlayer->m_bIsScoped")
