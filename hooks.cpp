@@ -41,6 +41,7 @@ void SlowWalk(CUserCmd* cmd, float forwardSpeed, float sideSpeed) {
 }
 
 void triggerbot(CUserCmd* cmd) {
+    if (!btriggerbot) return;
     Player* ent = *(Player**)(client + dwEntityList + (*(int*)(localPlayer + m_iCrosshairId) - 1) * 0x10);
     if (ent == localPlayer || *(int*)(ent + m_iTeamNum) == *(int*)(localPlayer + m_iTeamNum)) {
         return;
@@ -54,6 +55,7 @@ static QAngle cmdView = { 0,0,0 };
 bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd* cmd) {
     ClientState = *(DWORD*)(engine + dwClientState);
     static bool shouldResetbtRecords = 1;
+    if (!bBT) shouldResetbtRecords = 1;
     if (!EngineClient->IsInGame()) { return fCreateMove(ecx, edx, flSampleTimer, cmd); shouldResetbtRecords = 1; }
     static bool shotLast = 1;
     static btRecord backtrack[11] = { 0, 0, {0,0,0} };
@@ -288,23 +290,24 @@ void __fastcall hkPaint(void* ecx, void* edx, PaintMode_t mode) {
     if (mode & PAINT_UIPANELS) {
         DrawMenu();
         if (EngineClient->IsInGame()) DrawIndicators();
-        if (wepEntity) {
-            if (wepEntity->m_zoomLevel() != 0 && wepEntity->isSniper()) {
-                if (wepEntity->m_flNextPrimaryAttack() <= TICKS_TO_TIME(localPlayer->m_nTickBase()) || wepEntity->m_iItemDefinitionIndex() == WEAPON_SCAR20 || wepEntity->m_iItemDefinitionIndex() == WEAPON_G3SG1) {
-                    surface->SetDrawColor(black);
-                    surface->DrawLine(0, screenHeight / 2, screenWidth, screenHeight / 2);
-                    surface->DrawLine(screenWidth / 2, 0, screenWidth / 2, screenHeight);
-                }
-            }
-        }
     }
     if (!wepEntity) {
         fPaint(ecx, edx, mode);
         finishDrawing(surface);
         return;
     }
-    if (wepEntity->m_zoomLevel() != 1 && mode & PAINT_UIPANELS) {
-        fPaint(ecx, edx, mode);
-        finishDrawing(surface);
+    if (mode & PAINT_INGAMEPANELS) {
+        if (wepEntity) {
+            if (wepEntity->m_zoomLevel() != 0 && wepEntity->isSniper()) {
+                if (wepEntity->m_flNextPrimaryAttack() <= TICKS_TO_TIME(localPlayer->m_nTickBase()) || wepEntity->m_iItemDefinitionIndex() == WEAPON_SCAR20 || wepEntity->m_iItemDefinitionIndex() == WEAPON_G3SG1) {
+                    surface->SetDrawColor(black);
+                    surface->DrawLine(0, screenHeight / 2, screenWidth, screenHeight / 2);
+                    surface->DrawLine(screenWidth / 2, 0, screenWidth / 2, screenHeight);
+                    return;
+                }
+            }
+        }
     }
+    fPaint(ecx, edx, mode);
+    finishDrawing(surface);
 }
