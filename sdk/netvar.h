@@ -102,6 +102,7 @@ public:
 	NETVAR(m_flSimulationTime, float, "DT_BaseEntity->m_flSimulationTime")
 	PNETVAR(m_iHideHud, int, "DT_Local->m_iHideHud")
 	NETVAR(m_vecViewOffset, Vector3, "DT_LocalPlayerExclusive->m_vecViewOffset[0]")
+	NETVAR(m_totalHitsOnServer, int, "DT_CSPlayer->m_totalHitsOnServer")
 	//PNETVAR(m_skybox3d_origin, Vector3,  "DT_Local->m_skybox3d.origin");
 	//PNETVAR(m_skybox3d_scale, int,  "DT_Local->m_skybox3d.scale");
 	PNETVAR(m_angRotation, QAngle, "DT_BaseEntity->angRotation")
@@ -117,6 +118,7 @@ public:
 	NETVAR(m_iBurstShotsRemaining, int, "DT_WeaponCSBaseGun->m_iBurstShotsRemaining")
 	NETVAR(m_flNextPrimaryAttack, float, "DT_LocalActiveWeaponData->m_flNextPrimaryAttack")
 	NETVAR(m_flSimulationTime, float, "DT_BaseEntity->m_flSimulationTime")
+	NETVAR(m_fAccuracyPenalty, float, "DT_WeaponCSBase->m_fAccuracyPenalty")
 	int m_iItemDefinitionIndex() {
 		static int offset = NetVarManager::Get().GetOffset("DT_EconEntity->m_AttributeManager");
 		static int offset1 = NetVarManager::Get().GetOffset("DT_AttributeContainer->m_Item");

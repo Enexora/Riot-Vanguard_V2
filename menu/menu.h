@@ -194,7 +194,7 @@ void DrawMenu()
     cursorX = cTemp.x;
     cursorY = cTemp.y;
     Button Indicators(menuOriginX + 20, menuOriginY + 65, menuOriginX + 40, menuOriginY + 85, cTemp);
-    Button triggerbot(menuOriginX + 20, menuOriginY + 125, menuOriginX + 40, menuOriginY + 145, cTemp);
+    Button triggerbot(menuOriginX + 20, menuOriginY + 90, menuOriginX + 40, menuOriginY + 110, cTemp);
     Slider fov(Indicators.start.x + 30, Indicators.start.y + 5, Indicators.start.x + 130, Indicators.start.y + 15, 170, gFov, cTemp);
     //draw main menu bg and outline
     surface->SetDrawColor(valred);
@@ -228,7 +228,6 @@ void DrawMenu()
 
 
     //draw fov slider
-
     surface->SetDrawColor(valgrey);
     surface->DrawFilledRect(fov.start.x, fov.start.y, fov.start.x + 100, fov.end.y);
     surface->SetDrawColor(valred);
