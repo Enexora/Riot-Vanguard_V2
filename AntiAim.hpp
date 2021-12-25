@@ -42,12 +42,13 @@ namespace AntiAim {
                 flstored_yaw = cmd->viewangles.yaw;
             }
             if (*SendPacket == 0) {
-                cmd->viewangles.yaw = clamp180(flstored_yaw - 90.f);
+                cmd->viewangles.yaw = cmd->commandNumber % 6 ? clamp180(flstored_yaw + 128.43f) : clamp180(flstored_yaw + 163.f);
+                cmd->buttons &= ~IN_BULLRUSH;
                 if (cmd->buttons & IN_DUCK) {
-                    cmd->sidemove += cmd->tickCount % 2 ? 3.25 : -3.25;
+                    cmd->sidemove += cmd->commandNumber % 2 ? 3.25 : -3.25;
                 }
                 if (cmd->buttons & ~IN_DUCK) {
-                    cmd->sidemove += cmd->tickCount % 2 ? 1.01 : -1.01;
+                    cmd->sidemove += cmd->commandNumber % 2 ? 1.01 : -1.01;
                 }
             }
         }
@@ -67,7 +68,8 @@ namespace AntiAim {
             if (flstored_yaw > 180) flstored_yaw -= 360;
             if (flstored_yaw < -180) flstored_yaw += 360;
             if (*SendPacket == 0) {
-                cmd->viewangles.yaw = clamp180(flstored_yaw - 120.f);
+                //cmd->viewangles.yaw = clamp180(flstored_yaw - 120.f);
+                cmd->viewangles.yaw = clamp180(flstored_yaw - 73.231f);
                 if (cmd->buttons & IN_DUCK) {
                     cmd->sidemove += cmd->tickCount % 2 ? 3.25 : -3.25;
                 }

@@ -82,6 +82,15 @@ public:
 		static int offset1 = NetVarManager::Get().GetOffset("DT_PlayerState->deadflag");
 		return (QAngle*)(this + offset + offset1 + 0x4);
 	}
+	float* m_skybox3d_scale() {
+		//static int offset = NetVarManager::Get().GetOffset("DT_BasePlayer->m_Local");
+		static int offset1 = NetVarManager::Get().GetOffset("DT_Local->m_skybox3d.scale");
+		return (float*)(this + 0x2FCC + offset1);
+	}
+	Vector3* m_skybox3d_origin() {
+		static int offset1 = NetVarManager::Get().GetOffset("DT_Local->m_skybox3d.origin");
+		return (Vector3*)(this + 0x2FCC + offset1);
+	}
 	PNETVAR(m_angEyeAngles, QAngle, "DT_CSPlayer->m_angEyeAngles")
 	NETVAR(m_iTeamNum, int, "DT_BaseEntity->m_iTeamNum")
 	NETVAR(m_bIsScoped, bool, "DT_CSPlayer->m_bIsScoped")
@@ -89,8 +98,8 @@ public:
 	NETVAR(m_flSimulationTime, float, "DT_BaseEntity->m_flSimulationTime")
 	PNETVAR(m_iHideHud, int, "DT_Local->m_iHideHud")
 	NETVAR(m_vecViewOffset, Vector3, "DT_LocalPlayerExclusive->m_vecViewOffset[0]")
-	PNETVAR(m_skybox3d_origin, Vector3,  "DT_Local->m_skybox3d.origin");
-	PNETVAR(m_skybox3d_scale, int,  "DT_Local->m_skybox3d.scale");
+	//PNETVAR(m_skybox3d_origin, Vector3,  "DT_Local->m_skybox3d.origin");
+	//PNETVAR(m_skybox3d_scale, int,  "DT_Local->m_skybox3d.scale");
 	PNETVAR(m_angRotation, QAngle, "DT_BaseEntity->angRotation")
 	PNETVAR(m_fFlags, int, "DT_BasePlayer->m_fFlags")
 	NETVAR(m_hActiveWeapon, DWORD, "DT_BaseCombatCharacter->m_hActiveWeapon")
