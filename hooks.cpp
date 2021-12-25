@@ -40,6 +40,14 @@ void SlowWalk(CUserCmd* cmd, float forwardSpeed, float sideSpeed) {
     if (forwardSpeed < -39) { cmd->forwardmove = -39; }
 }
 
+void triggerbot(CUserCmd* cmd) {
+    Player* ent = *(Player**)(client + dwEntityList + (*(int*)(localPlayer + m_iCrosshairId) - 1) * 0x10);
+    if (ent == localPlayer || *(int*)(ent + m_iTeamNum) == *(int*)(localPlayer + m_iTeamNum)) {
+        return;
+    }
+    cmd->buttons |= IN_ATTACK;
+}
+
 static QAngle cmdView = { 0,0,0 };
 bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd* cmd) {
     ClientState = *(DWORD*)(engine + dwClientState);
@@ -85,6 +93,7 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
                 if (GetAsyncKeyState(0x54) & 1) {
                     trollEnt = *(int*)(localPlayer + m_iCrosshairId) - 1;
                 }
+                triggerbot(cmd);
             }
             if (trollEnt == i && EntityList->GetClientEntity(trollEnt) != localPlayer && *(int*)(*(DWORD*)(client + dwEntityList + trollEnt * 0x10) + m_iHealth) > 0 && GetAsyncKeyState(0x46)){
                 cmd->forwardmove = clamp450(cos(DEG2RAD(ViewAngles.yaw)) * (250 * (ent->m_vecOrigin().x - localPlayer->m_vecOrigin().x) + entVelocity.x) + sin(DEG2RAD(ViewAngles.yaw)) * (250 * (ent->m_vecOrigin().y - localPlayer->m_vecOrigin().y) + entVelocity.y));
@@ -295,12 +304,4 @@ void __fastcall hkPaint(void* ecx, void* edx, PaintMode_t mode) {
         fPaint(ecx, edx, mode);
         finishDrawing(surface);
     }
-}
-
-void triggerbot(CUserCmd* cmd) {
-    Player* ent = *(Player**)(client + dwEntityList + (*(int*)(localPlayer + m_iCrosshairId) - 1) * 0x10);
-    if (ent == localPlayer || *(int*)(ent + m_iTeamNum) == *(int*)(localPlayer + m_iTeamNum)) {
-        return; 
-    }
-    cmd->buttons |= IN_ATTACK;
 }

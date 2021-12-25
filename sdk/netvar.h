@@ -73,6 +73,10 @@ public:
 	NETVAR(m_vecOrigin, Vector3, "DT_BaseEntity->m_vecOrigin")
 	NETVAR(m_vecVelocity, Vector3, "DT_BasePlayer->m_vecVelocity")
 	NETVAR(m_iHealth, int, "DT_BasePlayer->m_iHealth")
+	int m_iCrosshairId() {
+		static uintptr_t offset1 = NetVarManager::Get().GetOffset("DT_CSPlayerResource->m_bHasDefuser");
+		return *(int*)(this + 92 + offset1);
+	}
 	QAngle m_aimPunchAngle() {
 		static uintptr_t offset1 = NetVarManager::Get().GetOffset("DT_Local->m_aimPunchAngle");
 		return *(QAngle*)(this + 0x2FCC + offset1);
