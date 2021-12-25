@@ -42,12 +42,12 @@ void SlowWalk(CUserCmd* cmd, float forwardSpeed, float sideSpeed) {
 
 void triggerbot(CUserCmd* cmd) {
     Player* ent = *(Player**)(client + dwEntityList + (*(int*)(localPlayer + m_iCrosshairId) - 1) * 0x10);
-    WeaponEntity* wepEntity = *(WeaponEntity**)(client + dwEntityList + (localPlayer->m_hActiveWeapon() & 0xFFF) * 0x10);
     if (ent == localPlayer || *(int*)(ent + m_iTeamNum) == *(int*)(localPlayer + m_iTeamNum)) {
         return;
     }
-    if (!wepEntity) return;
-    cmd->buttons |= IN_ATTACK;
+    if (localPlayer->m_vecVelocity().z <= 3.f) {
+        cmd->buttons |= IN_ATTACK;
+    }
 }
 
 static QAngle cmdView = { 0,0,0 };
@@ -81,9 +81,6 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
     static float entsim;
     static float bestMagnitude;
     static Vector3 bombAssHead;
-    if (localPlayer->m_totalHitsOnServer() != hits) {
-        hits = localPlayer->m_totalHitsOnServer();
-    }
     Vector3 entHPos;
     for (int i = 0; i < 64; i++) {                                                       // Ent list for aimbot
             Player* ent = *(Player**)(client + dwEntityList + i * 0x10);
