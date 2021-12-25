@@ -89,7 +89,7 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
             Vector3 entVelocity = *(Vector3*)(ent + m_vecVelocity);
             PlayerPos = localPlayer->m_vecOrigin();
             float trollmagnitude = sqrt(((entHPos.x - PlayerPos.x) * (entHPos.x - PlayerPos.x)) + ((entHPos.y - PlayerPos.y) * (entHPos.y - PlayerPos.y)));
-            if(*(int*)(localPlayer + m_iCrosshairId) != 0){
+            if(*(int*)(localPlayer + m_iCrosshairId) != 0 && InRange(*(int*)(localPlayer + m_iCrosshairId), 0, 64)){
                 if (GetAsyncKeyState(0x54) & 1) {
                     trollEnt = *(int*)(localPlayer + m_iCrosshairId) - 1;
                 }
