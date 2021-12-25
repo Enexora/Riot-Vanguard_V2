@@ -96,11 +96,7 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
             entHPos.z = *(float*)(*(DWORD*)(ent + m_dwBoneMatrix) + 0x30 * 8 + 0x2C);
             PlayerPos.z += localPlayer->m_vecViewOffset().z;
             if (bAimbot == true) {
-            if (*(bool*)(ent + m_bDormant) == 1 || ent == localPlayer || *(int*)(ent + m_iTeamNum) == *(int*)(localPlayer + m_iTeamNum)) {
-                aimbotAngles = ViewAngles;
-                continue;
-            }
-            if (*(int*)(ent + m_iHealth) <= 0) {
+            if (*(bool*)(ent + m_bDormant) == 1 || ent == localPlayer || ent->m_iTeamNum() == localPlayer->m_iTeamNum() || ent->m_iHealth() <= 0) { //checks before running actual aimbot lol
                 aimbotAngles = ViewAngles;
                 continue;
             }
