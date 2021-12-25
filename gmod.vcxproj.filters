@@ -51,13 +51,13 @@
     <ClInclude Include="sdk\patternscanningIDA.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="menu\resource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="menu\images\resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="menu\images\lodepng\lodepng.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Backtrack.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -68,11 +68,6 @@
     <ClCompile Include="menu\images\lodepng\lodepng.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="Riot-Vanguard_V2.rc">
-      <Filter>Resource Files</Filter>
-    </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
     <Image Include="E:\Random\Sorting hat\1924822548\chinaman.png">

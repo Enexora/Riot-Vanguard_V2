@@ -1,5 +1,5 @@
 ﻿#include "includes.h"
-#define TICK_INTERVAL        ( Globals->interval_per_tick ) // replace with globals->tickinterval
+#define TICK_INTERVAL        ( Globals->interval_per_tick )
 #define TIME_TO_TICKS( dt )    ( (int)( 0.5f + (float)(dt) / TICK_INTERVAL) )
 #define TICKS_TO_TIME( t )    ( TICK_INTERVAL * ( t ) )
 
@@ -7,6 +7,13 @@ struct Vector3 {
 	float x;
 	float y;
 	float z;
+	Vector3 operator+=(Vector3 inc) {
+		Vector3 clone = { x, y, z };
+		clone.x += inc.x;
+		clone.y += inc.y;
+		clone.z += inc.z;
+		return clone;
+	}
 };
 
 struct QAngle {
@@ -82,6 +89,10 @@ QAngle CalcAngle(Vector3 src, Vector3 dst, float magnitude, QAngle punchAngle) {
 
 bool IsCloser(QAngle newAng, QAngle oldAng, QAngle ViewAngles) {
 	 return abs(ViewAngles.yaw - newAng.yaw) + abs(ViewAngles.pitch - newAng.pitch) > abs(ViewAngles.yaw - oldAng.yaw) + abs(ViewAngles.pitch - oldAng.pitch);
+}
+
+bool AngleIsWithin(QAngle ViewAngles, QAngle desiredAngles, float bounds) {
+	return sqrt(pow((ViewAngles.yaw - desiredAngles.yaw), 2) + pow((ViewAngles.pitch - desiredAngles.pitch), 2)) <= bounds;
 }
 
 bool InRange(int a, int min, int max) {

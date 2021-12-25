@@ -159,9 +159,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Backtrack.h" />
     <ClInclude Include="csgo.hpp" />
     <ClInclude Include="menu\images\lodepng\lodepng.h" />
-    <ClInclude Include="menu\resource.h" />
     <ClInclude Include="menu\images\resource.h" />
     <ClInclude Include="sdk\enums.h" />
     <ClInclude Include="sdk\math\math.h" />
@@ -178,9 +178,6 @@
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="menu\images\lodepng\lodepng.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="Riot-Vanguard_V2.rc" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="E:\Random\Sorting hat\1924822548\chinaman.png" />

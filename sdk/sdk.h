@@ -6,7 +6,6 @@
 #include "math/math.h"
 #include "enums.h"
 #include "recv.h"
-#include "netvar.h"
 
 typedef void* (__cdecl* tCreateInterface)(const char* name, int* returnCode);
 
@@ -170,6 +169,7 @@ public:
 	inline CUserCmd*		GetUserCmd(int sequence_number);
 	inline CUserCmd*		GetUserCmd(int nSlot, int sequence_number);
 	inline CVerifiedUserCmd* GetVerifiedCmd(int sequence_number);
+
 };
 
 using tCreateMove = uintptr_t(__fastcall*)(void*,void*,float,CUserCmd*);
@@ -177,6 +177,24 @@ tCreateMove fCreateMove;
 
 using tOverrideView = void(__fastcall*)(void*,void*,CViewSetup*);
 tOverrideView fOverrideView;
+
+class IClientEntityList
+{
+public:
+	virtual void* GetClientNetworkable(int entnum) = 0;
+	virtual void* GetClientNetworkableFromHandle(int hEnt) = 0;
+	virtual void* GetClientUnknownFromHandle(int hEnt) = 0;
+	virtual	void* GetClientEntity(int entnum) = 0;
+	virtual void* GetClientEntityFromHandle(int hEnt) = 0;
+	virtual int					NumberOfEntities(bool bIncludeNonNetworkable) = 0;
+	virtual int					GetHighestEntityIndex(void) = 0;
+	virtual void				SetMaxEntities(int maxents) = 0;
+	virtual int					GetMaxEntities() = 0;
+	virtual int* GetClientNetworkableArray() = 0;
+};
+
+using tFrameStageNotify = void(__fastcall*)(void*, void*, int);
+tFrameStageNotify fFrameStageNotify;
 
 class CGlobals {
 public:
