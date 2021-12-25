@@ -179,9 +179,6 @@
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="menu\images\lodepng\lodepng.cpp" />
   </ItemGroup>
-  <ItemGroup>
-    <Image Include="E:\Random\Sorting hat\1924822548\chinaman.png" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
