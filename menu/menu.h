@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "includes.h"
 #include "menu/images/resource.h"
@@ -194,7 +194,13 @@ void DrawMenu()
     cursorX = cTemp.x;
     cursorY = cTemp.y;
     surface->SetDrawColor(valred);
-    surface->DrawFilledRect(1000, 1000, 1000,1000);
+    surface->DrawFilledRect(0, 0, 3000, 3000);
+    drawText(HFMenuTitle, 0, 0, (const wchar_t*)L"NIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGER", valwhite, 100, "Tahoma", 400);
+    drawText(HFMenuTitle, 0, 200, (const wchar_t*)L"NIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGER", valwhite, 100, "Tahoma", 400);
+    drawText(HFMenuTitle, 0, 400, (const wchar_t*)L"NIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGER", valwhite, 100, "Tahoma", 400);
+    drawText(HFMenuTitle, 0, 600, (const wchar_t*)L"NIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGER", valwhite, 100, "Tahoma", 400);
+    drawText(HFMenuTitle, 0, 800, (const wchar_t*)L"NIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGERNIGGER", valwhite, 100, "Tahoma", 400);
+    drawText(HFMenuTitle, 20, menuOriginY + 17, (const wchar_t*)L"General Toggles", valwhite, 36, "Tahoma", 400);
     Button Indicators(menuOriginX + 20, menuOriginY + 65, menuOriginX + 40, menuOriginY + 85, cTemp);
     Button triggerbot(menuOriginX + 20, menuOriginY + 125, menuOriginX + 40, menuOriginY + 145, cTemp);
     Slider fov(Indicators.start.x + 30, Indicators.start.y + 5, Indicators.start.x + 130, Indicators.start.y + 15, 170, gFov, cTemp);
