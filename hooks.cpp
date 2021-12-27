@@ -128,6 +128,9 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
                 entsim = *(float*)((DWORD)ent + m_flSimulationTime);
                 bombAssHead = entHPos;
                 bestMagnitude = magnitude;
+                if (wepEntity && wepEntity->m_iItemDefinitionIndex() == WEAPON_KNIFE && getMagnitude(localPlayer->m_vecOrigin(), ent->m_vecOrigin()) <= 60.f) {     //knifebot
+                    cmd->buttons |= IN_ATTACK2;
+                }               
             }
         }
     }
@@ -162,6 +165,11 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
         if (bBT && localPlayer->m_iHealth() > 0 && &sBacktrack[bestTarget]) {
             cmd->tickCount = sBacktrack[bestTarget].tick;
         }
+    }
+    if (wepEntity && wepEntity->m_iItemDefinitionIndex() == WEAPON_TASER && bestMagnitude <= 160.f) {     //zeusbot
+        cmd->viewangles.yaw = prevAngles.yaw;
+        cmd->viewangles.pitch = prevAngles.pitch;
+        cmd->buttons |= IN_ATTACK;
     }
     if (wepEntity) {
         if (cmd->buttons & IN_ATTACK2 && wepEntity->m_iItemDefinitionIndex() == WEAPON_KNIFE || wepEntity->m_iItemDefinitionIndex() == WEAPON_REVOLVER) {
@@ -204,7 +212,7 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
     clamp89(cmd->viewangles.pitch);
     clamp180(cmd->viewangles.yaw); // prevent untrusted 
     if (GetAsyncKeyState(0x58) && shouldShoot <= 0) cmd->commandNumber = INT_MAX;
-    if (!bBT) cmd->tickCount = TIME_TO_TICKS(entsim) + netchan->GetLatency(FLOW_INCOMING);
+    if (!bBT) cmd->tickCount = TIME_TO_TICKS(entsim) + netchan->GetLatency(FLOW_OUTGOING);
     cmd->tickCount += lerp;
     prevAngles.yaw = 18000.f;
     //if (cmd->buttons & IN_ATTACK && bAA) *SendPacket = 1;
@@ -314,7 +322,7 @@ void __fastcall hkPaint(void* ecx, void* edx, PaintMode_t mode) {
                 int textHeight = 0;
                 surface->GetTextSize(HFMenuSubsections, wname, textWidth, textHeight);
                 if (debugOverlay->ScreenPosition(textLocation, textLocation2D) == -1 || !bEsp) continue;
-                drawText(HFMenuSubsections, textLocation2D.x, textLocation2D.y - (textHeight), wname, white, 12, "Consolas", 200, FONTFLAG_DROPSHADOW, 1);
+                drawText(HFMenuSubsections, textLocation2D.x, textLocation2D.y - (textHeight), wname, white, 14, "Consolas", 200, FONTFLAG_DROPSHADOW, 1);
             }
         }
         if (wepEntity) {
