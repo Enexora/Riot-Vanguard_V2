@@ -52,6 +52,7 @@ DWORD WINAPI bhop(HMODULE hModule) {
         DWORD glowObj = *(DWORD*)(client + dwGlowObjectManager);
         if (!EngineClient->IsInGame()) continue;
         if (localPlayer == NULL) continue;
+        if(bAA) ClanTag();
         if (EngineClient->GetNetChannelInfo() != netchan) {
             netchan = EngineClient->GetNetChannelInfo();
         }
