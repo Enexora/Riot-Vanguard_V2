@@ -8,6 +8,7 @@ QAngle aimbotAngles = { 0,0,0 };
 QAngle prevAngles = { 0,0,0 };
 float fovAimbot = 15.f;
 bool flip = false;
+static int shouldShoot = 0;
 float lastTime;
 
 void Detour(void* src, void* dst) {
@@ -41,19 +42,21 @@ void SlowWalk(CUserCmd* cmd, float forwardSpeed, float sideSpeed) {
 }
 
 void triggerbot(CUserCmd* cmd) {
+    if (!btriggerbot) return;
     Player* ent = *(Player**)(client + dwEntityList + (*(int*)(localPlayer + m_iCrosshairId) - 1) * 0x10);
-    WeaponEntity* wepEntity = *(WeaponEntity**)(client + dwEntityList + (localPlayer->m_hActiveWeapon() & 0xFFF) * 0x10);
     if (ent == localPlayer || *(int*)(ent + m_iTeamNum) == *(int*)(localPlayer + m_iTeamNum)) {
         return;
     }
-    if (!wepEntity) return;
-    cmd->buttons |= IN_ATTACK;
+    if (localPlayer->m_vecVelocity().z <= 3.f) {
+        cmd->buttons |= IN_ATTACK;
+    }
 }
 
 static QAngle cmdView = { 0,0,0 };
 bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd* cmd) {
     ClientState = *(DWORD*)(engine + dwClientState);
     static bool shouldResetbtRecords = 1;
+    if (!bBT) shouldResetbtRecords = 1;
     if (!EngineClient->IsInGame()) { return fCreateMove(ecx, edx, flSampleTimer, cmd); shouldResetbtRecords = 1; }
     static bool shotLast = 1;
     static btRecord backtrack[11] = { 0, 0, {0,0,0} };
@@ -81,9 +84,6 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
     static float entsim;
     static float bestMagnitude;
     static Vector3 bombAssHead;
-    if (localPlayer->m_totalHitsOnServer() != hits) {
-        hits = localPlayer->m_totalHitsOnServer();
-    }
     Vector3 entHPos;
     for (int i = 0; i < 64; i++) {                                                       // Ent list for aimbot
             Player* ent = *(Player**)(client + dwEntityList + i * 0x10);
@@ -128,6 +128,9 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
                 entsim = *(float*)((DWORD)ent + m_flSimulationTime);
                 bombAssHead = entHPos;
                 bestMagnitude = magnitude;
+                if (wepEntity && wepEntity->m_iItemDefinitionIndex() == WEAPON_KNIFE && getMagnitude(localPlayer->m_vecOrigin(), ent->m_vecOrigin()) <= 60.f) {     //knifebot
+                    cmd->buttons |= IN_ATTACK2;
+                }               
             }
         }
     }
@@ -148,12 +151,6 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
     else {
         *SendPacket = 1;
     }
-    if (GetAsyncKeyState(VK_NUMPAD5)) {
-        using tSetClanTag = void(__fastcall*)(const char*, const char*);
-        static tSetClanTag SetClanTag = (tSetClanTag)(engine + dwSetClanTag);
-        SetClanTag(u8"⌠Vanguard⌡", "R Vanguard");
-    }
-
     if (bMenuOpen && (cmd->buttons & IN_ATTACK)) {
         cmd->buttons &= ~IN_ATTACK;
     }
@@ -168,6 +165,11 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
         if (bBT && localPlayer->m_iHealth() > 0 && &sBacktrack[bestTarget]) {
             cmd->tickCount = sBacktrack[bestTarget].tick;
         }
+    }
+    if (wepEntity && wepEntity->m_iItemDefinitionIndex() == WEAPON_TASER && bestMagnitude <= 160.f) {     //zeusbot
+        cmd->viewangles.yaw = prevAngles.yaw;
+        cmd->viewangles.pitch = prevAngles.pitch;
+        cmd->buttons |= IN_ATTACK;
     }
     if (wepEntity) {
         if (cmd->buttons & IN_ATTACK2 && wepEntity->m_iItemDefinitionIndex() == WEAPON_KNIFE || wepEntity->m_iItemDefinitionIndex() == WEAPON_REVOLVER) {
@@ -192,7 +194,7 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
                     cmd->viewangles.pitch = clamp89(prevAngles.pitch);
                     cmd->viewangles.yaw = clamp180(prevAngles.yaw);
                     cmd->buttons |= IN_ATTACK;
-                    *SendPacket = 0;
+                    if(wepEntity->m_iItemDefinitionIndex() != WEAPON_REVOLVER) *SendPacket = 0;
                 }
                 if (bBT) {
                     Backtrack(cmd, backtrack[btIndex], btIndex, PlayerPos, ViewAngles, localPlayer->m_aimPunchAngle(), 1);
@@ -203,14 +205,17 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
                     }
                     cmd->tickCount = sBacktrack[bestTarget].tick;
                 }
+                if(cmd->buttons & IN_ATTACK) shouldShoot = 2;
             }
         }
     }
     clamp89(cmd->viewangles.pitch);
     clamp180(cmd->viewangles.yaw); // prevent untrusted 
+    if (GetAsyncKeyState(0x58) && shouldShoot <= 0) cmd->commandNumber = INT_MAX;
+    if (!bBT) cmd->tickCount = TIME_TO_TICKS(entsim) + netchan->GetLatency(FLOW_OUTGOING);
+    cmd->tickCount += lerp;
     prevAngles.yaw = 18000.f;
-    if (!bBT) cmd->tickCount += TIME_TO_TICKS(netchan->GetLatency(FLOW_OUTGOING));
-    if (cmd->buttons & IN_ATTACK && bAA) *SendPacket = 1;
+    //if (cmd->buttons & IN_ATTACK && bAA) *SendPacket = 1;
     if (*SendPacket) { // yes yes. we check if send packet or not and acccordingly setup our player rendering
         cmdView.pitch = cmd->viewangles.pitch;
         cmdView.yaw = cmd->viewangles.yaw;
@@ -220,7 +225,7 @@ bool __fastcall hkCreateMove(void* ecx, void* edx, float flSampleTimer, CUserCmd
         localPlayer->getLocalBullshitVisualAngle()->yaw = cmdView.yaw;
     }
     FixMovement(cmd, ViewAngles); // if this is removed we cannot move where we are looking
-    if (GetAsyncKeyState(0x58)) cmd->commandNumber = INT_MAX;
+    shouldShoot -= 1;
     return false;
 }
 
@@ -268,6 +273,8 @@ void __fastcall hkLockCursor(void* ecx, void* edx) {
 }
 
 void __fastcall hkFrameStageNotify(void* ecx, void* edx, int stage) {
+    if (stage == FRAME_NET_UPDATE_POSTDATAUPDATE_START) return;
+    if (stage == FRAME_NET_UPDATE_START) return;
     fFrameStageNotify(ecx, edx, stage);
 }
 
@@ -291,23 +298,44 @@ void __fastcall hkPaint(void* ecx, void* edx, PaintMode_t mode) {
     if (mode & PAINT_UIPANELS) {
         DrawMenu();
         if (EngineClient->IsInGame()) DrawIndicators();
-        if (wepEntity) {
-            if (wepEntity->m_zoomLevel() != 0 && wepEntity->isSniper()) {
-                if (wepEntity->m_flNextPrimaryAttack() <= TICKS_TO_TIME(localPlayer->m_nTickBase()) || wepEntity->m_iItemDefinitionIndex() == WEAPON_SCAR20 || wepEntity->m_iItemDefinitionIndex() == WEAPON_G3SG1) {
-                    surface->SetDrawColor(black);
-                    surface->DrawLine(0, screenHeight / 2, screenWidth, screenHeight / 2);
-                    surface->DrawLine(screenWidth / 2, 0, screenWidth / 2, screenHeight);
-                }
-            }
-        }
     }
     if (!wepEntity) {
         fPaint(ecx, edx, mode);
         finishDrawing(surface);
         return;
     }
-    if (wepEntity->m_zoomLevel() != 1 && mode & PAINT_UIPANELS) {
-        fPaint(ecx, edx, mode);
-        finishDrawing(surface);
+    if (mode & PAINT_INGAMEPANELS) {
+        if (debugOverlay) {
+            for (int i = 0; i < 64; i++) {
+                Player* ent = *(Player**)(client + dwEntityList + i * 0x10);
+                if (!ent || (ent == localPlayer && !bTP) || ent->m_iHealth() <= 0 || ent == NULL || *(bool*)(ent + m_bDormant)) continue;
+                Vector3 textLocation;
+                textLocation.x = ent->m_vecOrigin().x;
+                textLocation.y = ent->m_vecOrigin().y;
+                textLocation.z = *(float*)(*(DWORD*)(ent + m_dwBoneMatrix) + 0x30 * 8 + 0x2C) + 4;
+                playerInfo info;
+                EngineClient->GetPlayerInfo(i + 1, &info);
+                Vector3 textLocation2D;
+                wchar_t wname[128];
+                if(MultiByteToWideChar(CP_UTF8, 0, info.szName, -1, wname, 128) <= 0) continue;
+                int textWidth = 0;
+                int textHeight = 0;
+                surface->GetTextSize(HFMenuSubsections, wname, textWidth, textHeight);
+                if (debugOverlay->ScreenPosition(textLocation, textLocation2D) == -1 || !bEsp) continue;
+                drawText(HFMenuSubsections, textLocation2D.x, textLocation2D.y - (textHeight), wname, white, 14, "Consolas", 200, FONTFLAG_DROPSHADOW, 1);
+            }
+        }
+        if (wepEntity) {
+            if (wepEntity->m_zoomLevel() != 0 && wepEntity->isSniper()) {
+                if (wepEntity->m_flNextPrimaryAttack() <= TICKS_TO_TIME(localPlayer->m_nTickBase()) || wepEntity->m_iItemDefinitionIndex() == WEAPON_SCAR20 || wepEntity->m_iItemDefinitionIndex() == WEAPON_G3SG1) {
+                    surface->SetDrawColor(black);
+                    surface->DrawLine(0, screenHeight / 2, screenWidth, screenHeight / 2);
+                    surface->DrawLine(screenWidth / 2, 0, screenWidth / 2, screenHeight);
+                    return;
+                }
+            }
+        }
     }
+    fPaint(ecx, edx, mode);
+    finishDrawing(surface);
 }

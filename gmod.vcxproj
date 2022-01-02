@@ -160,6 +160,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Backtrack.h" />
+    <ClInclude Include="ClanTag.h" />
     <ClInclude Include="csgo.hpp" />
     <ClInclude Include="menu\images\lodepng\lodepng.h" />
     <ClInclude Include="menu\images\resource.h" />
@@ -173,6 +174,8 @@
     <ClInclude Include="antiaim.hpp" />
     <ClInclude Include="menu\menu.h" />
     <ClInclude Include="sdk\sdk.h" />
+    <ClInclude Include="sdk\Math Structs.h" />
+    <ClInclude Include="sdk\World2Screen.h" />
     <ClInclude Include="toggles.h" />
   </ItemGroup>
   <ItemGroup>

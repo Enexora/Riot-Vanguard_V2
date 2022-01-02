@@ -60,6 +60,15 @@
     <ClInclude Include="Backtrack.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ClanTag.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sdk\Math Structs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sdk\World2Screen.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">

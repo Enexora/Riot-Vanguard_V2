@@ -1,26 +1,9 @@
 ﻿#include "includes.h"
+#include "sdk\Math Structs.h"
+#include "sdk\sdk.h"
 #define TICK_INTERVAL        ( Globals->interval_per_tick )
 #define TIME_TO_TICKS( dt )    ( (int)( 0.5f + (float)(dt) / TICK_INTERVAL) )
 #define TICKS_TO_TIME( t )    ( TICK_INTERVAL * ( t ) )
-
-struct Vector3 {
-	float x;
-	float y;
-	float z;
-	Vector3 operator+=(Vector3 inc) {
-		Vector3 clone = { x, y, z };
-		clone.x += inc.x;
-		clone.y += inc.y;
-		clone.z += inc.z;
-		return clone;
-	}
-};
-
-struct QAngle {
-	float pitch;
-	float yaw;
-	float roll;
-};
 
 float clamp89(float a) {
 	if (a < -89.f) {
@@ -97,4 +80,8 @@ bool AngleIsWithin(QAngle ViewAngles, QAngle desiredAngles, float bounds) {
 
 bool InRange(int a, int min, int max) {
 	return (a <= max && a >= min);
+}
+
+float getMagnitude(Vector3 src, Vector3 dst) {
+	return sqrtf(pow(src.x - dst.x, 2) + pow(src.y - dst.y, 2));
 }

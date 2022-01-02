@@ -16,7 +16,7 @@ namespace AntiAim {
                 flstored_yaw = cmd->viewangles.yaw;
             }
             if (*SendPacket == 0) {
-                cmd->viewangles.yaw = clamp180(flstored_yaw + 120.f);
+                cmd->viewangles.yaw = clamp180(flstored_yaw - 120.f);
                 if (cmd->buttons & IN_DUCK) {
                     cmd->sidemove += cmd->tickCount % 2 ? 3.25 : -3.25;
                 }
@@ -27,7 +27,7 @@ namespace AntiAim {
         }
 
         void jitter(CUserCmd* cmd, QAngle prevAngles, bool inair) {
-            int chokeCount = 6;
+            int chokeCount = 3;
             static int sentPackets = 0;
             if (inair == true) chokeCount = 15;
             Vector3 velocity = *(Vector3*)(localPlayer + m_vecVelocity);
@@ -42,7 +42,7 @@ namespace AntiAim {
                 flstored_yaw = cmd->viewangles.yaw;
             }
             if (*SendPacket == 0) {
-                cmd->viewangles.yaw = cmd->commandNumber % 6 ? clamp180(flstored_yaw + 128.43f) : clamp180(flstored_yaw + 163.f);
+                cmd->viewangles.yaw = cmd->commandNumber % 6 ? clamp180(flstored_yaw + 118.43f) : clamp180(flstored_yaw - 33.14f);
                 cmd->buttons &= ~IN_BULLRUSH;
                 if (cmd->buttons & IN_DUCK) {
                     cmd->sidemove += cmd->commandNumber % 2 ? 3.25 : -3.25;
@@ -50,6 +50,32 @@ namespace AntiAim {
                 if (cmd->buttons & ~IN_DUCK) {
                     cmd->sidemove += cmd->commandNumber % 2 ? 1.01 : -1.01;
                 }
+            }
+        }
+
+        void cheeto(CUserCmd* cmd, QAngle prevAngles, bool inair) {
+            int chokeCount = 2;
+            static int sentPackets = 0;
+            if (inair == true) chokeCount = 15;
+            Vector3 velocity = *(Vector3*)(localPlayer + m_vecVelocity);
+            if (sentPackets == INT_MAX) sentPackets = 0;
+            if (*SendPacket == 1) sentPackets += 1;
+            if (EngineClient->IsVoiceRecording() && chokeCount > 4) { chokeCount = 4; }
+            *SendPacket = (*(int*)(clientstate_choked_commands + ClientState) >= chokeCount);
+            cmd->viewangles.pitch = 89.f;
+            static float flstored_yaw = 0;
+            if (*SendPacket == 0) {
+                cmd->viewangles.yaw = fabsf(flstored_yaw - (clamp180(cmd->viewangles.yaw + 150))) > 75.f ? clamp180(cmd->viewangles.yaw + 150) : flstored_yaw + 6.f;
+                flstored_yaw = cmd->viewangles.yaw;
+                if (cmd->buttons & IN_DUCK) {
+                    cmd->sidemove += cmd->commandNumber % 2 ? 3.25 : -3.25;
+                }
+                if (cmd->buttons & ~IN_DUCK) {
+                    cmd->sidemove += cmd->commandNumber % 2 ? 1.01 : -1.01;
+                }
+            }
+            if (*SendPacket == 1) {
+                cmd->viewangles.yaw = clamp180(flstored_yaw + 120);
             }
         }
 
@@ -68,8 +94,8 @@ namespace AntiAim {
             if (flstored_yaw > 180) flstored_yaw -= 360;
             if (flstored_yaw < -180) flstored_yaw += 360;
             if (*SendPacket == 0) {
-                //cmd->viewangles.yaw = clamp180(flstored_yaw - 120.f);
-                cmd->viewangles.yaw = clamp180(flstored_yaw - 73.231f);
+                cmd->viewangles.yaw = clamp180(flstored_yaw - 120.f);
+                //cmd->viewangles.yaw = clamp180(flstored_yaw - 73.231f);
                 if (cmd->buttons & IN_DUCK) {
                     cmd->sidemove += cmd->tickCount % 2 ? 3.25 : -3.25;
                 }
@@ -94,7 +120,7 @@ namespace AntiAim {
             if (flstored_yaw > 180) flstored_yaw -= 360;
             if (flstored_yaw < -180) flstored_yaw += 360;
             if (*SendPacket == 0) {
-                cmd->viewangles.yaw = clamp180(flstored_yaw - 120.f);
+                cmd->viewangles.yaw = clamp180(cmd->viewangles.yaw - 120.f);
                 if (cmd->buttons & IN_DUCK) {
                     cmd->sidemove += cmd->tickCount % 2 ? 3.25 : -3.25;
                 }

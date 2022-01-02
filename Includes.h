@@ -24,6 +24,7 @@ IEngineVGui* engineVGui = (IEngineVGui*)GetInterface("engine.dll", "VEngineVGui0
 IBaseClientDLL* pClientDLL = (IBaseClientDLL*)GetInterface("client.dll", "VClient018");
 ISurface* surface = (ISurface*)GetInterface("vguimatsurface.dll", "VGUI_Surface031");
 IClientEntityList* EntityList = (IClientEntityList*)GetInterface("client.dll", "VClientEntityList003");
+CDebugOverlay* debugOverlay = (CDebugOverlay*)GetInterface("engine.dll", "VDebugOverlay004");
 Player* plocalPlayer;
 DWORD client;
 DWORD engine;
@@ -50,7 +51,9 @@ vgui::HFont HFMenuSliders;
 vgui::HCursor cursor;
 float gFov = 100.f;
 
+#include "ClanTag.h"
 #include "sdk/patternscanningIDA.h"
+#include "sdk\World2Screen.h"
 #include "antiaim.hpp"
 #include "toggles.h"
 #include "Backtrack.h"

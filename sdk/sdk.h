@@ -80,6 +80,16 @@ public:
 CUserCmd* UserCmd;
 CVerifiedUserCmd* VUserCmd;
 
+class CDebugOverlay
+{
+public:
+	int ScreenPosition(const Vector3& point, Vector3& screen)
+	{
+		using original_fn = int(__thiscall*)(void*, const Vector3& point, Vector3& screen);
+		return (*(original_fn**)this)[13](this, point, screen);
+	}
+};
+
 class CViewSetup
 {
 public:
@@ -146,11 +156,8 @@ public:
 	//void*					m_pKeys;
 	//char                pad_0x38[0x70]; //was 0x6C
 	//bool                m_fCameraInterceptingMouse;
-
 	//bool                m_fCameraMovingWithMouse;
-
 	//bool                m_fCameraDistanceMove;
-
 	bool                m_fCameraInThirdPerson;
 	bool				m_fAtNuts;
 	Vector3             m_vecCameraOffset;
@@ -169,7 +176,6 @@ public:
 	inline CUserCmd*		GetUserCmd(int sequence_number);
 	inline CUserCmd*		GetUserCmd(int nSlot, int sequence_number);
 	inline CVerifiedUserCmd* GetVerifiedCmd(int sequence_number);
-
 };
 
 using tCreateMove = uintptr_t(__fastcall*)(void*,void*,float,CUserCmd*);
@@ -198,26 +204,25 @@ tFrameStageNotify fFrameStageNotify;
 
 class CGlobals {
 public:
-	float        realtime;
-	int            frame_count;
-	float        absolute_frametime;
-	float        absolute_frame_start_time;
-	float        cur_time;
-	float        frame_time;
-	int            max_clients;
-	int            tick_count;
-	float        interval_per_tick;
-	float        interpolation_amount;
-	int            sim_ticks_this_frame;
-	int            network_protocol;
-	void* p_save_data;
+	float       realtime;
+	int         frame_count;
+	float       absolute_frametime;
+	float       absolute_frame_start_time;
+	float       cur_time;
+	float       frame_time;
+	int         max_clients;
+	int         tick_count;
+	float       interval_per_tick;
+	float       interpolation_amount;
+	int         sim_ticks_this_frame;
+	int         network_protocol;
+	void*		p_save_data;
 	bool        is_client;
 	bool        is_remote_client;
-	int            timestamp_networking_base;
-	int            timestamp_randomize_window;
+	int         timestamp_networking_base;
+	int         timestamp_randomize_window;
 };
 class ITexture;
-const char* myArray[];
 namespace vgui
 {
 	class Vec2 {
@@ -356,6 +361,11 @@ public:
 	{
 		using original_fn = void(__thiscall*)(void*, int x, int y);
 		return (*(original_fn**)this)[26](this, x, y);
+	}
+	void GetTextSize(DWORD font, const wchar_t* text, int& wide, int& tall)
+	{
+		using original_fn = void(__thiscall*)(void*, DWORD, const wchar_t*, int&, int&);
+		return (*(original_fn**)this)[79](this, font, text, wide, tall);
 	}
 	vgui::HFont sCreateFont()
 	{
@@ -511,7 +521,28 @@ public:
 	virtual void GetRemoteFramerate(float* pflFrameTime, float* pflFrameTimeStdDeviation) const = 0;
 	virtual float GetTimeoutSeconds() const = 0;
 };
-
+struct playerInfo {
+		__int64         unknown;            //0x0000 
+		union
+		{
+			__int64       steamID64;          //0x0008 - SteamID64
+			struct
+			{
+				__int32     xuid_low;
+				__int32     xuid_high;
+			};
+		};
+		char            szName[128];        //0x0010 - Player Name
+		int             userId;             //0x0090 - Unique Server Identifier
+		char            szSteamID[20];      //0x0094 - STEAM_X:Y:Z
+		char            pad_0x00A8[0x10];   //0x00A8
+		unsigned long   iSteamID;           //0x00B8 - SteamID 
+		char            szFriendsName[128];
+		bool            fakeplayer;
+		bool            ishltv;
+		unsigned int    customfiles[4];
+		unsigned char   filesdownloaded;
+};
 class IEngineClient
 {
 public:
@@ -520,7 +551,11 @@ public:
 		using original_fn = void(__thiscall*)(void*, int&, int&);
 		return (*(original_fn**)this)[5](this, iWidth, iHeight);
 	}
-
+	bool GetPlayerInfo(int entnum, playerInfo* pinfo)
+	{
+		using original_fn = bool(__thiscall*)(void*, int, playerInfo*);
+		return (*(original_fn**)this)[8](this, entnum, pinfo);
+	}
 	int GetLocalPlayer()
 	{
 		using original_fn = int(__thiscall*)(void*);
@@ -572,23 +607,28 @@ public:
 
 	void* GetBSPTreeQuery()
 	{
-		using original_fn = void*(__thiscall*)(void*);
+		using original_fn = void* (__thiscall*)(void*);
 		return (*(original_fn**)this)[43](this);
 	}
 	INetChannelInfo* GetNetChannelInfo()
 	{
-		using original_fn = INetChannelInfo*(__thiscall*)(void*);
+		using original_fn = INetChannelInfo * (__thiscall*)(void*);
 		return (*(original_fn**)this)[78](this);
 	}
 	void ExecuteClientCmd(const char* szCmdString)
 	{
-		using original_fn = void(__thiscall*)(void*,const char*);
+		using original_fn = void(__thiscall*)(void*, const char*);
 		return (*(original_fn**)this)[108](this, szCmdString);
+	}
+	VMatrix& WorldToScreenMatrix()
+	{
+		using original_fn = VMatrix & (__thiscall*)(void*);
+		return (*(original_fn**)this)[38](this);
 	}
 
 	void ClientCmdUnrestricted(const char* szCmdString, bool bFromConsoleOrKeybind = false)
 	{
-		using original_fn = void(__thiscall*)(void*,const char*, bool);
+		using original_fn = void(__thiscall*)(void*, const char*, bool);
 		return (*(original_fn**)this)[114](this, szCmdString, 0);
 	}
 	bool IsVoiceRecording()
@@ -597,3 +637,4 @@ public:
 		return (*(original_fn**)this)[224](this);
 	}
 };
+
